@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Yuvia Clinics</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<!-- Shared Firebase config — edit firebase-config.js only -->
+<script src="firebase-config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&family=Noto+Serif+Arabic:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FAF8F5;
+    --warm-white: #F5F0EB;
+    --champagne: #D4B896;
+    --gold: #B8965A;
+    --deep-gold: #8B6E3A;
+    --charcoal: #1A1714;
+    --warm-gray: #6B6359;
+    --light-gray: #E8E2DA;
+    --blush: #E8C4B8;
+    --soft-rose: #D4A090;
+    --dark: #0D0B09;
+    --text-dark: #1A1714;
+    --text-mid: #4A4540;
+    --text-light: #8A7E75;
+    --font-display: 'Cormorant Garamond', serif;
+    --font-body: 'Montserrat', sans-serif;
+    --font-arabic: 'Noto Serif Arabic', serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--cream);
+    color: var(--text-dark);
+    overflow-x: hidden;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── LOGIN ── */
+  .admin-login {
+    min-height: 100vh;
+    background: var(--charcoal);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .admin-login::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #0D0B09 0%, #1A1714 50%, #231E19 100%);
+    opacity: 0.97;
+    z-index: 0;
+  }
+  .admin-login::after {
+    content: '';
+    position: absolute; inset: 0; opacity: 0.03;
+    background-image: repeating-linear-gradient(45deg, var(--champagne) 0, var(--champagne) 1px, transparent 0, transparent 50%);
+    background-size: 20px 20px;
+    z-index: 0;
+  }
+  .login-box {
+    background: var(--cream);
+    max-width: 420px; width: 100%;
+    padding: 64px 52px;
+    position: relative; z-index: 2;
+    animation: loginFade 0.6s ease both;
+    box-shadow: 0 40px 120px rgba(0,0,0,0.5);
+  }
+  @keyframes loginFade {
+    from { opacity: 0; transform: translateY(24px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .login-diamond {
+    display: flex; justify-content: center; margin-bottom: 28px;
+  }
+  .login-diamond-icon {
+    width: 48px; height: 48px;
+    border: 1px solid var(--gold);
+    transform: rotate(45deg);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .login-diamond-icon::after {
+    content: '◇';
+    transform: rotate(-45deg);
+    color: var(--gold); font-size: 18px;
+    display: block;
+  }
+  .login-logo {
+    font-family: var(--font-display);
+    font-size: 26px; letter-spacing: 6px;
+    color: var(--charcoal); text-align: center;
+    margin-bottom: 4px; font-weight: 300;
+  }
+  .login-sub {
+    font-size: 9px; letter-spacing: 5px;
+    color: var(--gold); text-align: center;
+    margin-bottom: 44px; text-transform: uppercase;
+  }
+  .login-heading {
+    font-family: var(--font-display);
+    font-size: 20px; color: var(--text-dark);
+    margin-bottom: 6px; font-weight: 400;
+  }
+  .login-hint {
+    font-size: 11px; color: var(--text-light);
+    letter-spacing: 0.5px; margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .login-error {
+    background: #FDE8E8; border: 1px solid #E8B4B4;
+    padding: 12px 16px; font-size: 12px; color: #C45A5A;
+    margin-bottom: 18px; display: none;
+    letter-spacing: 0.3px; line-height: 1.5;
+  }
+  .form-row { margin-bottom: 20px; }
+  .form-label {
+    display: block; font-size: 9px; letter-spacing: 2.5px;
+    color: var(--warm-gray); margin-bottom: 8px; text-transform: uppercase;
+  }
+  .form-input {
+    width: 100%; padding: 13px 16px;
+    border: 1px solid var(--light-gray); background: var(--warm-white);
+    font-family: var(--font-body); font-size: 14px;
+    color: var(--text-dark); outline: none;
+    transition: border-color 0.3s; letter-spacing: 0.3px;
+  }
+  .form-input:focus { border-color: var(--gold); }
+  .form-input.pass-field { letter-spacing: 4px; font-size: 18px; }
+  .btn-login {
+    width: 100%; background: var(--gold); color: var(--dark);
+    padding: 14px; font-size: 10px; letter-spacing: 3px;
+    font-weight: 600; border: none; cursor: pointer;
+    font-family: var(--font-body); text-transform: uppercase;
+    margin-top: 4px; transition: all 0.3s;
+  }
+  .btn-login:hover { background: var(--deep-gold); color: var(--cream); }
+  .login-back { display: block; text-align: center; margin-top: 24px; font-size: 11px; color: var(--text-light); text-decoration: none; letter-spacing: 1px; cursor: pointer; transition: color 0.2s; }
+  .login-back:hover { color: var(--gold); }
+
+  /* ── DASHBOARD ── */
+  .admin-dashboard {
+    min-height: 100vh; background: #F0EDE8;
+    display: none;
+  }
+  .admin-sidebar {
+    background: var(--charcoal); padding: 0;
+    display: flex; flex-direction: column;
+    position: fixed; left: 0; top: 0; bottom: 0; width: 250px;
+    z-index: 100; overflow-y: auto;
+  }
+  .sidebar-logo {
+    padding: 36px 30px 28px;
+    border-bottom: 1px solid rgba(212,184,150,0.1);
+  }
+  .sidebar-logo-text {
+    font-family: var(--font-display); font-size: 20px;
+    letter-spacing: 5px; color: var(--cream); font-weight: 300;
+  }
+  .sidebar-logo-sub {
+    font-size: 8px; letter-spacing: 3px;
+    color: var(--gold); margin-top: 5px; text-transform: uppercase;
+  }
+  .sidebar-nav { padding: 20px 0; flex: 1; }
+  .sidebar-section {
+    font-size: 8px; letter-spacing: 3px;
+    color: rgba(212,184,150,0.35); padding: 16px 30px 8px;
+    text-transform: uppercase;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 13px;
+    padding: 13px 30px; color: rgba(250,248,245,0.5);
+    cursor: pointer; transition: all 0.2s;
+    font-size: 12px; letter-spacing: 0.5px;
+    border-left: 2px solid transparent;
+    text-decoration: none;
+  }
+  .sidebar-item:hover { color: var(--cream); background: rgba(255,255,255,0.03); }
+  .sidebar-item.active { color: var(--gold); border-color: var(--gold); background: rgba(184,150,90,0.08); }
+  .sidebar-icon { font-size: 15px; width: 20px; text-align: center; opacity: 0.8; }
+  .sidebar-footer {
+    padding: 24px 30px;
+    border-top: 1px solid rgba(212,184,150,0.1);
+  }
+  .logout-btn {
+    background: none; border: 1px solid rgba(212,184,150,0.2);
+    color: rgba(250,248,245,0.45); padding: 11px 20px;
+    font-size: 10px; letter-spacing: 2px; cursor: pointer;
+    width: 100%; font-family: var(--font-body);
+    transition: all 0.2s; text-transform: uppercase;
+  }
+  .logout-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  .admin-main { margin-left: 250px; padding: 44px; }
+  .admin-topbar {
+    display: flex; justify-content: space-between;
+    align-items: flex-start; margin-bottom: 44px;
+  }
+  .admin-page-title {
+    font-family: var(--font-display); font-size: 34px;
+    color: var(--charcoal); font-weight: 300; line-height: 1;
+    margin-bottom: 6px;
+  }
+  .admin-date { font-size: 11px; color: var(--warm-gray); letter-spacing: 0.5px; }
+  .topbar-back {
+    font-size: 11px; color: var(--warm-gray); cursor: pointer;
+    letter-spacing: 1px; text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+    transition: color 0.2s; padding-top: 6px;
+  }
+  .topbar-back:hover { color: var(--gold); }
+
+  /* ── STATS ── */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--cream); border: 1px solid var(--light-gray);
+    padding: 28px 26px; position: relative; overflow: hidden;
+    transition: box-shadow 0.25s, transform 0.25s;
+  }
+  .stat-card:hover {
+    box-shadow: 0 8px 32px rgba(184,150,90,0.10);
+    transform: translateY(-2px);
+  }
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%; background: var(--gold);
+    transition: width 0.25s;
+  }
+  .stat-card:hover::before { width: 4px; }
+  .stat-card-accent {
+    position: absolute; top: 18px; right: 20px;
+    font-size: 24px; opacity: 0.10; user-select: none;
+    font-family: var(--font-display);
+  }
+  .stat-num {
+    font-family: var(--font-display); font-size: 48px;
+    color: var(--charcoal); font-weight: 300; line-height: 1;
+    margin-bottom: 8px; letter-spacing: -1px;
+  }
+  .stat-label {
+    font-size: 9px; letter-spacing: 2px;
+    color: var(--warm-gray); text-transform: uppercase;
+  }
+  .stat-change { font-size: 10px; color: #6BAF8A; margin-top: 10px; letter-spacing: 0.3px; }
+  .stat-change.warn { color: #C49A5A; }
+  .stat-change.neutral { color: var(--text-light); }
+  .stat-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: var(--light-gray); overflow: hidden;
+  }
+  .stat-bar-fill {
+    height: 100%; background: linear-gradient(to right, var(--champagne), var(--gold));
+    border-radius: 0;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* ── SKELETON LOADING ── */
+  @keyframes shimmer {
+    0% { background-position: -600px 0; }
+    100% { background-position: 600px 0; }
+  }
+  .skeleton {
+    background: linear-gradient(90deg, #ede9e3 25%, #f5f1ec 50%, #ede9e3 75%);
+    background-size: 600px 100%;
+    animation: shimmer 1.6s infinite linear;
+    border-radius: 2px;
+  }
+  .skeleton-stat { height: 48px; width: 70%; margin-bottom: 8px; }
+  .skeleton-label { height: 10px; width: 55%; }
+  .skeleton-change { height: 10px; width: 40%; margin-top: 10px; }
+  .skeleton-row { display: flex; gap: 16px; padding: 16px 24px; border-bottom: 1px solid rgba(232,226,218,0.5); }
+  .skeleton-cell { height: 14px; flex: 1; }
+  .skeleton-cell.narrow { flex: 0 0 80px; }
+  .skeleton-cell.mid { flex: 0 0 120px; }
+
+  /* ── EMPTY STATES ── */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 72px 40px;
+    text-align: center;
+  }
+  .empty-state-icon {
+    width: 56px; height: 56px;
+    border: 1px solid var(--light-gray);
+    transform: rotate(45deg);
+    margin-bottom: 28px; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .empty-state-icon::after {
+    content: attr(data-glyph);
+    transform: rotate(-45deg);
+    font-size: 18px; color: var(--champagne);
+    display: block;
+  }
+  .empty-state-title {
+    font-family: var(--font-display); font-size: 22px;
+    color: var(--charcoal); font-weight: 300; margin-bottom: 10px;
+  }
+  .empty-state-desc {
+    font-size: 12px; color: var(--text-light);
+    letter-spacing: 0.3px; line-height: 1.8;
+    max-width: 320px;
+  }
+
+  /* ── STATUS BADGES ── */
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 11px 4px 8px;
+    font-size: 9px; letter-spacing: 1.2px;
+    text-transform: uppercase; font-weight: 600;
+    border-radius: 2px;
+  }
+  .status-badge::before {
+    content: ''; display: inline-block; width: 5px; height: 5px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-pending   { background: #FEF7E6; color: #9A6E0A; border: 1px solid #F0D68A; }
+  .status-pending::before { background: #D4A017; }
+  .status-confirmed { background: #E8F6EF; color: #1A6B3C; border: 1px solid #A8D8BC; }
+  .status-confirmed::before { background: #2E9E5B; }
+  .status-completed { background: #E6F2FA; color: #145C80; border: 1px solid #96C8E4; }
+  .status-completed::before { background: #2082B0; }
+  .status-cancelled { background: #FBE8E8; color: #892020; border: 1px solid #E8ABAB; }
+  .status-cancelled::before { background: #C43A3A; }
+
+  /* ── ACTION BUTTONS ── */
+  .action-btn {
+    background: none; border: 1px solid var(--light-gray);
+    padding: 5px 12px; font-size: 10px; cursor: pointer;
+    font-family: var(--font-body); transition: all 0.2s;
+    margin-right: 4px; color: var(--text-mid); letter-spacing: 0.3px;
+  }
+  .action-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .action-btn.confirm { border-color: rgba(107,175,138,0.5); color: #4A9A6A; }
+  .action-btn.confirm:hover { border-color: #4A9A6A; background: rgba(107,175,138,0.05); }
+  .action-btn.cancel { border-color: rgba(196,122,122,0.5); color: #C47A7A; }
+  .action-btn.cancel:hover { border-color: #C47A7A; background: rgba(196,122,122,0.05); }
+
+  /* ── SEARCH / FILTER ── */
+  .search-bar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+  .search-wrap { position: relative; flex: 1; min-width: 180px; }
+  .search-wrap::before {
+    content: '⌕'; position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%); font-size: 16px; color: var(--text-light);
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%; padding: 11px 16px 11px 38px;
+    border: 1px solid var(--light-gray); background: var(--cream);
+    font-family: var(--font-body); font-size: 13px;
+    color: var(--text-dark); outline: none; transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .search-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,150,90,0.08); }
+  .filter-select {
+    padding: 11px 16px;
+    border: 1px solid var(--light-gray); background: var(--cream);
+    font-family: var(--font-body); font-size: 12px;
+    color: var(--text-dark); outline: none; cursor: pointer;
+    min-width: 150px; transition: border-color 0.3s;
+    -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238A7E75'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+    padding-right: 36px;
+  }
+  .filter-select:focus { border-color: var(--gold); }
+  .search-results-info { font-size: 11px; color: var(--text-light); letter-spacing: 0.3px; white-space: nowrap; }
+
+  /* ── PANEL SYSTEM ── */
+  .admin-panel { display: none; }
+  .admin-panel.active { display: block; }
+
+  /* ── SERVICES MANAGE ── */
+  .service-manage-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px; padding: 24px;
+  }
+  .service-manage-card {
+    border: 1px solid var(--light-gray); padding: 22px;
+    background: var(--warm-white);
+  }
+  .service-manage-name {
+    font-family: var(--font-display); font-size: 19px;
+    color: var(--charcoal); margin-bottom: 6px;
+  }
+  .service-manage-meta { font-size: 11px; color: var(--text-light); margin-bottom: 4px; }
+  .service-manage-price { font-size: 12px; color: var(--gold); margin-bottom: 16px; font-weight: 500; }
+  .service-manage-actions { display: flex; gap: 8px; }
+  .add-service-btn {
+    background: var(--gold); color: var(--dark);
+    padding: 10px 24px; font-size: 10px; letter-spacing: 2px;
+    border: none; cursor: pointer; font-family: var(--font-body);
+    text-transform: uppercase; font-weight: 600; transition: all 0.3s;
+  }
+  .add-service-btn:hover { background: var(--deep-gold); color: var(--cream); }
+
+  /* ── AVAILABILITY ── */
+  .avail-row {
+    display: flex; align-items: flex-start; gap: 20px;
+    padding: 18px 0; border-bottom: 1px solid var(--light-gray);
+  }
+  .avail-row:last-child { border-bottom: none; }
+  .avail-day { width: 130px; font-size: 12px; font-weight: 600; color: var(--text-dark); padding-top: 4px; }
+  .avail-slots { flex: 1; display: flex; flex-wrap: wrap; gap: 6px; }
+  .slot-tag {
+    background: var(--warm-white); border: 1px solid var(--light-gray);
+    padding: 5px 12px; font-size: 11px; color: var(--text-mid);
+  }
+  .avail-closed { font-size: 12px; color: var(--text-light); padding-top: 4px; letter-spacing: 0.5px; }
+
+  /* ── ADMIN CARD REFINEMENTS ── */
+  .admin-card {
+    background: var(--cream); border: 1px solid var(--light-gray);
+    margin-bottom: 24px; overflow: hidden;
+  }
+  .admin-card-header {
+    padding: 22px 28px; border-bottom: 1px solid var(--light-gray);
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--cream);
+  }
+  .admin-card-title {
+    font-family: var(--font-display); font-size: 22px;
+    color: var(--charcoal); font-weight: 400; line-height: 1;
+  }
+  .admin-card-subtitle {
+    font-size: 11px; color: var(--text-light); margin-top: 4px; letter-spacing: 0.3px;
+  }
+
+  /* ── SERVICE BAR CHART ── */
+  .service-chart { padding: 24px 28px; }
+  .service-bar-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .service-bar-label { width: 130px; font-size: 11px; color: var(--text-mid); letter-spacing: 0.2px; flex-shrink: 0; }
+  .service-bar-track { flex: 1; height: 6px; background: var(--light-gray); overflow: hidden; }
+  .service-bar-fill { height: 100%; background: linear-gradient(to right, var(--champagne), var(--gold)); transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+  .service-bar-count { width: 28px; font-size: 11px; color: var(--warm-gray); text-align: right; font-weight: 500; }
+
+  /* ── DATA TABLE ── */
+  .table-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .data-table { width: 100%; border-collapse: collapse; min-width: 560px; }
+  .data-table th {
+    padding: 13px 20px; text-align: left;
+    font-size: 9px; letter-spacing: 2px; color: var(--warm-gray);
+    background: var(--warm-white); text-transform: uppercase;
+    border-bottom: 1px solid var(--light-gray); font-weight: 500;
+    white-space: nowrap;
+  }
+  .data-table td {
+    padding: 15px 20px; font-size: 12px; color: var(--text-dark);
+    border-bottom: 1px solid rgba(232,226,218,0.5); vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(184,150,90,0.025); }
+
+  /* ── EDIT SERVICE MODAL ── */
+  .edit-modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    background: rgba(13,11,9,0.75); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .edit-modal-overlay.open { display: flex; }
+  .edit-modal {
+    background: var(--cream); width: 100%; max-width: 460px;
+    padding: 40px 36px; position: relative;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+    animation: editModalIn 0.25s ease both;
+  }
+  @keyframes editModalIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .edit-modal-title {
+    font-family: var(--font-display); font-size: 24px;
+    color: var(--charcoal); font-weight: 300; margin-bottom: 6px;
+  }
+  .edit-modal-sub { font-size: 10px; letter-spacing: 2px; color: var(--gold); margin-bottom: 28px; text-transform: uppercase; }
+  .edit-modal .form-row { margin-bottom: 18px; }
+  .edit-modal .form-label { font-size: 9px; letter-spacing: 2px; color: var(--warm-gray); display: block; margin-bottom: 7px; text-transform: uppercase; }
+  .edit-modal .form-input {
+    width: 100%; padding: 12px 14px;
+    border: 1px solid var(--light-gray); background: var(--warm-white);
+    font-family: var(--font-body); font-size: 13px; color: var(--text-dark);
+    outline: none; transition: border-color 0.25s;
+  }
+  .edit-modal .form-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,150,90,0.10); }
+  .edit-modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+  .edit-modal-save {
+    flex: 1; background: var(--gold); color: var(--dark);
+    padding: 12px; font-size: 10px; letter-spacing: 2.5px;
+    font-weight: 600; border: none; cursor: pointer;
+    font-family: var(--font-body); text-transform: uppercase; transition: all 0.25s;
+  }
+  .edit-modal-save:hover { background: var(--deep-gold); color: var(--cream); }
+  .edit-modal-cancel {
+    background: none; border: 1px solid var(--light-gray); color: var(--text-mid);
+    padding: 12px 20px; font-size: 10px; letter-spacing: 1.5px;
+    cursor: pointer; font-family: var(--font-body); text-transform: uppercase; transition: all 0.25s;
+  }
+  .edit-modal-cancel:hover { border-color: var(--warm-gray); color: var(--charcoal); }
+  .edit-modal-close {
+    position: absolute; top: 14px; right: 18px;
+    background: none; border: none; font-size: 22px; color: var(--text-light);
+    cursor: pointer; transition: color 0.2s; line-height: 1;
+  }
+  .edit-modal-close:hover { color: var(--charcoal); }
+
+  /* ── MOBILE RESPONSIVE ── */
+  @media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .service-manage-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 900px) {
+    .admin-sidebar {
+      width: 100%; height: auto; position: relative;
+      flex-direction: row; align-items: center;
+      padding: 0; overflow: visible;
+    }
+    .admin-dashboard.active { display: block; }
+    .sidebar-logo { padding: 16px 20px; border-bottom: none; border-right: 1px solid rgba(212,184,150,0.1); flex-shrink: 0; }
+    .sidebar-logo-text { font-size: 16px; letter-spacing: 3px; }
+    .sidebar-logo-sub { display: none; }
+    .sidebar-nav {
+      display: flex; flex-direction: row; padding: 0;
+      overflow-x: auto; flex: 1; -webkit-overflow-scrolling: touch;
+    }
+    .sidebar-section { display: none; }
+    .sidebar-item {
+      padding: 14px 16px; border-left: none;
+      border-bottom: 2px solid transparent; flex-shrink: 0;
+      font-size: 11px; white-space: nowrap;
+    }
+    .sidebar-item.active { border-bottom-color: var(--gold); border-left-color: transparent; }
+    .sidebar-footer { padding: 0 14px; flex-shrink: 0; }
+    .logout-btn { padding: 8px 14px; font-size: 9px; white-space: nowrap; }
+    .admin-main { margin-left: 0; padding: 20px 16px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .service-manage-grid { grid-template-columns: 1fr; }
+    .data-table th, .data-table td { padding: 11px 14px; font-size: 11px; }
+    .admin-topbar { flex-direction: row; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+  }
+  @media (max-width: 600px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-card { padding: 20px 16px; }
+    .stat-num { font-size: 36px; }
+    .admin-page-title { font-size: 24px; }
+    .admin-main { padding: 14px 12px; }
+    .search-bar { flex-direction: column; }
+    .filter-select { min-width: unset; width: 100%; }
+    .admin-card-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+    .login-box { padding: 44px 28px; }
+    .service-manage-grid { grid-template-columns: 1fr; padding: 16px; gap: 12px; }
+    .sidebar-item span:not(.sidebar-icon) { display: none; }
+    .sidebar-item { padding: 14px 12px; }
+  }
+  @media (max-width: 400px) {
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="admin-login" class="admin-login">
+  <div class="login-box">
+    <div class="login-diamond"><div class="login-diamond-icon"></div></div>
+    <div class="login-logo">YUVIA</div>
+    <div class="login-sub">Admin Portal</div>
+    <div class="login-heading">Dashboard Access</div>
+    <div class="login-hint">Select your profile and enter your password to continue.</div>
+    <div class="login-error" id="login-error">Incorrect password. Please try again.</div>
+
+    <!-- Doctor selector -->
+    <div class="form-row">
+      <label class="form-label">Select Doctor</label>
+      <div id="doctor-select-btns" style="display:flex;flex-direction:column;gap:8px;margin-top:2px"></div>
+    </div>
+
+    <!-- Password (shown after doctor selected) -->
+    <div class="form-row" id="pass-row" style="display:none">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-input pass-field" id="login-pass" placeholder="••••" onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+
+    <button class="btn-login" id="login-btn" onclick="adminLogin()" style="display:none">Enter Dashboard</button>
+    <a class="login-back" href="index.html">← Return to Website</a>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="admin-dashboard" class="admin-dashboard">
+
+  <!-- Sidebar -->
+  <div class="admin-sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">YUVIA</div>
+      <div class="sidebar-logo-sub">Admin Dashboard</div>
+      <div id="sidebar-doctor-name" style="font-size:10px;color:var(--champagne);margin-top:10px;letter-spacing:1px;opacity:0.8"></div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <div class="sidebar-item active" onclick="showAdminPanel('overview', this)">
+        <span class="sidebar-icon">◈</span> <span>Overview</span>
+      </div>
+      <div class="sidebar-item" onclick="showAdminPanel('appointments', this)">
+        <span class="sidebar-icon">◷</span> <span>Appointments</span>
+      </div>
+      <div class="sidebar-item" onclick="showAdminPanel('patients', this)">
+        <span class="sidebar-icon">◎</span> <span>Patients</span>
+      </div>
+      <div class="sidebar-section">Manage</div>
+      <div class="sidebar-item" onclick="showAdminPanel('services-admin', this)">
+        <span class="sidebar-icon">✦</span> <span>Services</span>
+      </div>
+      <div class="sidebar-item" onclick="showAdminPanel('availability', this)">
+        <span class="sidebar-icon">◻</span> <span>Availability</span>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="adminLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <div class="admin-page-title" id="admin-page-label">Overview</div>
+        <div class="admin-date" id="admin-date-display"></div>
+      </div>
+      <a class="topbar-back" href="index.html">← View Website</a>
+    </div>
+
+    <!-- ── OVERVIEW PANEL ── -->
+    <div id="panel-overview" class="admin-panel active">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-accent">◈</div>
+          <div class="stat-num" id="stat-total">0</div>
+          <div class="stat-label">Total Bookings</div>
+          <div class="stat-change neutral" id="stat-total-c">All time</div>
+          <div class="stat-bar"><div class="stat-bar-fill" id="stat-bar-total" style="width:100%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-accent">◷</div>
+          <div class="stat-num" id="stat-pending">0</div>
+          <div class="stat-label">Pending</div>
+          <div class="stat-change warn" id="stat-pending-c">Awaiting confirmation</div>
+          <div class="stat-bar"><div class="stat-bar-fill" id="stat-bar-pending" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-accent">✓</div>
+          <div class="stat-num" id="stat-confirmed">0</div>
+          <div class="stat-label">Confirmed</div>
+          <div class="stat-change" id="stat-conf-c">Upcoming</div>
+          <div class="stat-bar"><div class="stat-bar-fill" id="stat-bar-confirmed" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-accent">◎</div>
+          <div class="stat-num" id="stat-patients">0</div>
+          <div class="stat-label">Total Patients</div>
+          <div class="stat-change" id="stat-pat-c">Unique</div>
+          <div class="stat-bar"><div class="stat-bar-fill" id="stat-bar-patients" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div>
+            <div class="admin-card-title">Recent Appointments</div>
+            <div class="admin-card-subtitle">Latest 7 bookings across all statuses</div>
+          </div>
+        </div>
+        <div id="overview-loading">
+          <div class="skeleton-row"><div class="skeleton skeleton-cell"></div><div class="skeleton skeleton-cell mid"></div><div class="skeleton skeleton-cell mid"></div><div class="skeleton skeleton-cell narrow"></div></div>
+          <div class="skeleton-row"><div class="skeleton skeleton-cell"></div><div class="skeleton skeleton-cell mid"></div><div class="skeleton skeleton-cell mid"></div><div class="skeleton skeleton-cell narrow"></div></div>
+          <div class="skeleton-row"><div class="skeleton skeleton-cell"></div><div class="skeleton skeleton-cell mid"></div><div class="skeleton skeleton-cell mid"></div><div class="skeleton skeleton-cell narrow"></div></div>
+        </div>
+        <div id="overview-table-wrap" style="display:none">
+          <div class="table-scroll-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Phone</th>
+                <th>Doctor</th>
+                <th>Service</th>
+                <th>Date &amp; Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="overview-table-body"></tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+      <!-- Service breakdown mini chart -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div>
+            <div class="admin-card-title">Service Breakdown</div>
+            <div class="admin-card-subtitle">Bookings by treatment</div>
+          </div>
+        </div>
+        <div class="service-chart" id="service-chart"></div>
+      </div>
+    </div>
+
+    <!-- ── APPOINTMENTS PANEL ── -->
+    <div id="panel-appointments" class="admin-panel">
+      <div class="search-bar">
+        <div class="search-wrap">
+          <input type="text" class="search-input" placeholder="Search by name or phone…" id="appt-search" oninput="filterAppointments()">
+        </div>
+        <select class="filter-select" id="appt-filter" onchange="filterAppointments()">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <select class="filter-select" id="appt-service-filter" onchange="filterAppointments()">
+          <option value="">All Services</option>
+        </select>
+        <span class="search-results-info" id="appt-results-info"></span>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div>
+            <div class="admin-card-title">Appointments</div>
+            <div class="admin-card-subtitle" id="appt-card-subtitle">All scheduled appointments</div>
+          </div>
+        </div>
+        <div>
+          <div class="table-scroll-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Phone</th>
+                <th>Doctor</th>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="appointments-table-body"></tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PATIENTS PANEL ── -->
+    <div id="panel-patients" class="admin-panel">
+      <div class="search-bar">
+        <div class="search-wrap">
+          <input type="text" class="search-input" placeholder="Search patients…" id="patient-search" oninput="filterPatients()">
+        </div>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title">Patient Records</div>
+          <div style="font-size:12px;color:var(--warm-gray)" id="patients-count"></div>
+        </div>
+        <div>
+          <div class="table-scroll-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Last Service</th>
+                <th>Total Visits</th>
+                <th>Last Appointment</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="patients-table-body"></tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SERVICES ADMIN PANEL ── -->
+    <div id="panel-services-admin" class="admin-panel">
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title">Manage Services</div>
+          <button class="add-service-btn" onclick="addServiceAdmin()">+ Add Service</button>
+        </div>
+        <div>
+          <div class="service-manage-grid" id="services-admin-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AVAILABILITY PANEL ── -->
+    <div id="panel-availability" class="admin-panel">
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title">Working Hours &amp; Availability</div>
+        </div>
+        <div style="padding:28px">
+          <div id="avail-grid"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /admin-main -->
+</div><!-- /admin-dashboard -->
+
+<!-- ══ EDIT SERVICE MODAL ══ -->
+<div class="edit-modal-overlay" id="edit-service-modal">
+  <div class="edit-modal">
+    <button class="edit-modal-close" onclick="closeEditModal()">×</button>
+    <div class="edit-modal-title">Edit Service</div>
+    <div class="edit-modal-sub">Update service details</div>
+    <input type="hidden" id="edit-service-id">
+    <div class="form-row">
+      <label class="form-label">Service Name</label>
+      <input type="text" class="form-input" id="edit-service-name" placeholder="Service name">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Category</label>
+      <input type="text" class="form-input" id="edit-service-cat" placeholder="Category">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Duration</label>
+      <input type="text" class="form-input" id="edit-service-duration" placeholder="e.g. 45–60 min">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Price</label>
+      <input type="text" class="form-input" id="edit-service-price" placeholder="e.g. From SAR 1,200">
+    </div>
+    <div class="edit-modal-actions">
+      <button class="edit-modal-save" onclick="saveEditService()">Save Changes</button>
+      <button class="edit-modal-cancel" onclick="closeEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Global error guard — prevents JS errors from causing white screen ──
+window.onerror = function(msg, src, line, col, err) {
+  console.warn('[Yuvia Admin] JS error caught:', msg, 'at', src, line + ':' + col);
+  return false;
+};
+window.addEventListener('unhandledrejection', function(e) {
+  console.warn('[Yuvia Admin] Unhandled promise rejection:', e.reason);
+  e.preventDefault();
+});
+
+// ════════════════════════════════════════════════
+// DOCTORS CONFIG
+// ════════════════════════════════════════════════
+const DOCTORS_CONFIG = [
+  { id: 'dr-entsar',   name: 'Dr. Entsar Aboelrish',  password: '7777', role: 'superadmin' },
+  { id: 'dr-mai',      name: 'Dr. Mai Aboelsoud',     password: '123',  role: 'doctor' },
+];
+
+// Currently logged-in doctor — set on login
+let currentDoctor = null;
+
+// ── Helper: get bookings visible to current doctor ──
+function visibleBookings() {
+  if (!currentDoctor) return [];
+  if (currentDoctor.role === 'superadmin') return bookings;
+  // Match on selectedDoctor field (new field) OR legacy name field for old bookings
+  return bookings.filter(b => {
+    const docField = (b.selectedDoctor || '').toLowerCase();
+    const docName  = currentDoctor.name.toLowerCase();
+    return docField.includes(docName.split(' ').pop()) || // match last name
+           docField === docName ||
+           docField.includes(currentDoctor.id.replace('dr-',''));
+  });
+}
+
+// ════════════════════════════════════════════════
+// DATA — services loaded live from Firestore
+// ════════════════════════════════════════════════
+const SERVICES_SEED = [
+  { _docId: 'diamond-lips',    id: 'diamond-lips',    cat: 'Lip Specialist',       name: 'Diamond Lips',    desc: 'Proprietary technique for naturally full, symmetrical lips.', duration: '45–60 min', price: 'From SAR 1,200', sortOrder: 1 },
+  { _docId: 'cheek-filler',    id: 'cheek-filler',    cat: 'Facial Aesthetics',    name: 'Cheek Filler',    desc: 'Restore volume and enhance cheekbone definition.', duration: '30 min',     price: 'From SAR 1,000', sortOrder: 2 },
+  { _docId: 'botox-therapy',   id: 'botox-therapy',   cat: 'Anti-Aging',           name: 'Botox Therapy',   desc: 'Precise neurotoxin treatments to smooth fine lines.', duration: '20–30 min', price: 'From SAR 800',   sortOrder: 3 },
+  { _docId: 'skin-boosters',   id: 'skin-boosters',   cat: 'Skin Health',          name: 'Skin Boosters',   desc: 'Deep hydration via micro-injections of hyaluronic acid.', duration: '45 min',     price: 'From SAR 900',   sortOrder: 4 },
+  { _docId: 'prp-therapy',     id: 'prp-therapy',     cat: 'Regenerative',         name: 'PRP Therapy',     desc: 'Harness your own growth factors to rejuvenate skin.', duration: '60 min',     price: 'From SAR 1,400', sortOrder: 5 },
+  { _docId: 'full-face-design',id: 'full-face-design',cat: 'Facial Harmonization', name: 'Full Face Design',desc: 'Comprehensive assessment and multi-area treatment.', duration: '90 min',     price: 'From SAR 2,500', sortOrder: 6 },
+];
+
+let SERVICES = [];
+let bookings = [];
+let db = null;
+let bookingsRef = null;
+let servicesRef = null;
+let firestoreReady = false;
+
+try {
+  if (typeof firebase !== 'undefined' && typeof FIREBASE_CONFIG !== 'undefined') {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    bookingsRef = db.collection('bookings');
+    servicesRef  = db.collection('services');
+
+    // Bookings real-time listener
+    bookingsRef.orderBy('createdAt', 'asc').onSnapshot(snapshot => {
+      bookings = snapshot.docs.map(doc => {
+        const d = doc.data();
+        return {
+          _docId: doc.id,
+          // Normalise both old and new field names
+          name:            d.patientName || d.name || '',
+          phone:           d.phone || '',
+          service:         d.selectedService || d.service || '',
+          selectedDoctor:  d.selectedDoctor || d.doctor || '',
+          date:            d.bookingDate ? d.bookingDate.split(' ')[0] : (d.date || ''),
+          time:            d.bookingDate ? d.bookingDate.split(' ').slice(1).join(' ') : (d.time || ''),
+          status:          d.status || 'pending',
+          notes:           d.notes || '',
+          createdAt:       d.createdAt || '',
+          // keep originals too
+          ...d,
+        };
+      });
+      firestoreReady = true;
+      const dash = document.getElementById('admin-dashboard');
+      if (dash && dash.style.display !== 'none' && currentDoctor) {
+        updateAdminStats();
+        renderAdminAppointments();
+        renderAdminPatients();
+        renderServiceChart();
+      }
+    }, err => { console.warn('Firestore bookings listener error:', err); firestoreReady = true; });
+
+    // Services real-time listener
+    servicesRef.orderBy('sortOrder', 'asc').onSnapshot(snapshot => {
+      if (snapshot.empty) {
+        const batch = db.batch();
+        SERVICES_SEED.forEach(s => {
+          const { _docId, ...data } = s;
+          batch.set(servicesRef.doc(_docId), data);
+        });
+        batch.commit().catch(e => console.warn('Seed error:', e));
+        return;
+      }
+      SERVICES = snapshot.docs.map(doc => ({ _docId: doc.id, id: doc.id, ...doc.data() }));
+      const grid = document.getElementById('services-admin-grid');
+      if (grid) renderAdminServices();
+      populateServiceFilter();
+    }, err => console.warn('Services listener error:', err));
+
+  } else {
+    console.warn('Firebase not available — admin running in offline mode');
+    SERVICES = SERVICES_SEED.map(s => ({ ...s }));
+  }
+} catch (e) {
+  console.warn('Firebase init error (admin):', e);
+  SERVICES = SERVICES_SEED.map(s => ({ ...s }));
+}
+
+const AVAILABILITY = {
+  0: [],
+  1: ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM'],
+  2: ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM'],
+  3: ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM'],
+  4: ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM'],
+  5: ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM'],
+  6: ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM'],
+};
+
+// ════════════════════════════════════════════════
+// LOGIN — DOCTOR SELECTION
+// ════════════════════════════════════════════════
+let selectedDoctorId = null;
+
+function buildDoctorButtons() {
+  const wrap = document.getElementById('doctor-select-btns');
+  if (!wrap) return;
+  wrap.innerHTML = DOCTORS_CONFIG.map(d => `
+    <button
+      id="docbtn-${d.id}"
+      onclick="selectDoctorLogin('${d.id}')"
+      style="width:100%;padding:12px 16px;border:1px solid var(--light-gray);background:var(--warm-white);
+             font-family:var(--font-body);font-size:13px;color:var(--text-dark);cursor:pointer;
+             text-align:left;transition:all 0.2s;letter-spacing:0.3px;display:flex;align-items:center;gap:10px">
+      <span style="width:8px;height:8px;border-radius:50%;background:var(--light-gray);flex-shrink:0;transition:background 0.2s" id="docbtn-dot-${d.id}"></span>
+      ${d.name}
+    </button>
+  `).join('');
+}
+
+function selectDoctorLogin(id) {
+  selectedDoctorId = id;
+  // Visual feedback
+  DOCTORS_CONFIG.forEach(d => {
+    const btn = document.getElementById('docbtn-' + d.id);
+    const dot = document.getElementById('docbtn-dot-' + d.id);
+    if (btn) btn.style.borderColor = d.id === id ? 'var(--gold)' : 'var(--light-gray)';
+    if (btn) btn.style.background = d.id === id ? 'rgba(184,150,90,0.06)' : 'var(--warm-white)';
+    if (dot) dot.style.background = d.id === id ? 'var(--gold)' : 'var(--light-gray)';
+  });
+  // Show password field
+  document.getElementById('pass-row').style.display = 'block';
+  document.getElementById('login-btn').style.display = 'block';
+  document.getElementById('login-error').style.display = 'none';
+  setTimeout(() => document.getElementById('login-pass').focus(), 50);
+}
+
+function adminLogin() {
+  const errEl = document.getElementById('login-error');
+  if (!selectedDoctorId) {
+    errEl.textContent = 'Please select a doctor first.';
+    errEl.style.display = 'block';
+    return;
+  }
+  const doctor = DOCTORS_CONFIG.find(d => d.id === selectedDoctorId);
+  const pass = document.getElementById('login-pass').value;
+  if (!doctor || pass !== doctor.password) {
+    errEl.textContent = 'Incorrect password. Please try again.';
+    errEl.style.display = 'block';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
+    return;
+  }
+  // Success
+  errEl.style.display = 'none';
+  currentDoctor = doctor;
+  document.getElementById('admin-login').style.display = 'none';
+  const dash = document.getElementById('admin-dashboard');
+  dash.classList.add('active');
+  if (window.innerWidth > 900) {
+    dash.style.display = 'grid';
+    dash.style.gridTemplateColumns = '250px 1fr';
+  } else {
+    dash.style.display = 'block';
+  }
+  // Show doctor name in sidebar
+  const nameEl = document.getElementById('sidebar-doctor-name');
+  if (nameEl) nameEl.textContent = doctor.name;
+  document.getElementById('admin-date-display').textContent =
+    new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  renderAdminServices();
+  renderAvailability();
+  populateServiceFilter();
+  updateAdminStats();
+  renderAdminAppointments();
+  renderAdminPatients();
+}
+
+function adminLogout() {
+  currentDoctor = null;
+  selectedDoctorId = null;
+  const dash = document.getElementById('admin-dashboard');
+  dash.style.display = 'none';
+  dash.classList.remove('active');
+  document.getElementById('admin-login').style.display = 'flex';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('pass-row').style.display = 'none';
+  document.getElementById('login-btn').style.display = 'none';
+  // Reset doctor button selection
+  DOCTORS_CONFIG.forEach(d => {
+    const btn = document.getElementById('docbtn-' + d.id);
+    const dot = document.getElementById('docbtn-dot-' + d.id);
+    if (btn) { btn.style.borderColor = 'var(--light-gray)'; btn.style.background = 'var(--warm-white)'; }
+    if (dot) dot.style.background = 'var(--light-gray)';
+  });
+}
+
+// ════════════════════════════════════════════════
+// PANEL NAVIGATION
+// ════════════════════════════════════════════════
+function showAdminPanel(id, el) {
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const titles = {
+    'overview': 'Overview', 'appointments': 'Appointments',
+    'patients': 'Patients', 'services-admin': 'Services', 'availability': 'Availability'
+  };
+  document.getElementById('admin-page-label').textContent = titles[id] || id;
+  if (id === 'appointments') renderAdminAppointments();
+  if (id === 'patients') renderAdminPatients();
+  if (id === 'services-admin') renderAdminServices();
+  if (id === 'availability') renderAvailability();
+}
+
+// ════════════════════════════════════════════════
+// HELPERS — EMPTY STATE
+// ════════════════════════════════════════════════
+function emptyState(glyph, title, desc) {
+  return `<div class="empty-state">
+    <div class="empty-state-icon" data-glyph="${glyph}"></div>
+    <div class="empty-state-title">${title}</div>
+    <div class="empty-state-desc">${desc}</div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════
+// STATS
+// ════════════════════════════════════════════════
+function updateAdminStats() {
+  const vis = visibleBookings();
+  const total = vis.length;
+  const pending = vis.filter(b => b.status === 'pending').length;
+  const confirmed = vis.filter(b => b.status === 'confirmed').length;
+  const unique = [...new Set(vis.map(b => b.phone))].length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-confirmed').textContent = confirmed;
+  document.getElementById('stat-patients').textContent = unique;
+  const pct = (n) => total ? Math.max(8, Math.round(n/total*100)) : 0;
+  const setBar = (id, val) => { const el = document.getElementById(id); if(el) el.style.width = val+'%'; };
+  setBar('stat-bar-total', 100);
+  setBar('stat-bar-pending', pct(pending));
+  setBar('stat-bar-confirmed', pct(confirmed));
+  setBar('stat-bar-patients', unique ? Math.max(15, Math.round(unique/(total||1)*100)) : 0);
+  renderOverviewTable();
+  renderServiceChart();
+}
+
+// ════════════════════════════════════════════════
+// OVERVIEW TABLE
+// ════════════════════════════════════════════════
+function renderOverviewTable() {
+  const tbody = document.getElementById('overview-table-body');
+  const wrap  = document.getElementById('overview-table-wrap');
+  const loading = document.getElementById('overview-loading');
+  if (!tbody) return;
+  const vis = visibleBookings();
+  const recent = [...vis].reverse().slice(0, 7);
+  if (!recent.length) {
+    if (loading) loading.style.display = 'none';
+    if (wrap) wrap.style.display = 'none';
+    const existing = tbody.closest('.admin-card').querySelector('.empty-state');
+    if (!existing) {
+      tbody.closest('.admin-card').querySelector('.admin-card-header').insertAdjacentHTML('afterend', emptyState('◈','No appointments yet','New bookings will appear here once patients start scheduling.'));
+    }
+    return;
+  }
+  const stale = tbody.closest('.admin-card').querySelector('.empty-state');
+  if (stale) stale.remove();
+  tbody.innerHTML = recent.map(b => `
+    <tr>
+      <td><strong>${b.name}</strong></td>
+      <td style="color:var(--text-light)">${b.phone}</td>
+      <td style="color:var(--text-light);font-size:11px">${b.selectedDoctor || '—'}</td>
+      <td>${b.service}</td>
+      <td>${b.date}&nbsp;<span style="color:var(--text-light)">${b.time}</span></td>
+      <td><span class="status-badge status-${b.status}">${b.status}</span></td>
+      <td>${actionButtons(b)}</td>
+    </tr>
+  `).join('');
+  if (loading && loading.style.display !== 'none') {
+    setTimeout(() => { if(loading) loading.style.display='none'; if(wrap) wrap.style.display='block'; }, 400);
+  } else {
+    if (loading) loading.style.display = 'none';
+    if (wrap) wrap.style.display = 'block';
+  }
+}
+
+function renderServiceChart() {
+  const container = document.getElementById('service-chart');
+  if (!container) return;
+  const vis = visibleBookings();
+  const counts = {};
+  vis.forEach(b => { counts[b.service] = (counts[b.service] || 0) + 1; });
+  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+  const max = sorted[0]?.[1] || 1;
+  container.innerHTML = sorted.map(([name, count]) => `
+    <div class="service-bar-row">
+      <div class="service-bar-label">${name}</div>
+      <div class="service-bar-track"><div class="service-bar-fill" style="width:${Math.round(count/max*100)}%"></div></div>
+      <div class="service-bar-count">${count}</div>
+    </div>
+  `).join('') || `<div style="padding:20px;font-size:12px;color:var(--text-light);text-align:center">No data yet</div>`;
+}
+
+// ════════════════════════════════════════════════
+// APPOINTMENTS TABLE
+// ════════════════════════════════════════════════
+function renderAdminAppointments() {
+  const search  = document.getElementById('appt-search')?.value || '';
+  const status  = document.getElementById('appt-filter')?.value || '';
+  const service = document.getElementById('appt-service-filter')?.value || '';
+  const tbody   = document.getElementById('appointments-table-body');
+  if (!tbody) return;
+
+  const vis = visibleBookings().filter(b => {
+    const matchSearch  = !search  || b.name.toLowerCase().includes(search.toLowerCase()) || b.phone.includes(search);
+    const matchStatus  = !status  || b.status === status;
+    const matchService = !service || b.service === service;
+    return matchSearch && matchStatus && matchService;
+  });
+
+  const info = document.getElementById('appt-results-info');
+  if (info) info.textContent = vis.length ? `${vis.length} result${vis.length !== 1 ? 's' : ''}` : '';
+  const subtitle = document.getElementById('appt-card-subtitle');
+  if (subtitle) subtitle.textContent = (search || status || service) ? 'Filtered results' : 'All scheduled appointments';
+
+  // Remove stale empty state
+  const stale = tbody.closest('.admin-card').querySelector('.empty-state');
+  if (stale) stale.remove();
+
+  if (!vis.length) {
+    tbody.innerHTML = '';
+    tbody.closest('table').insertAdjacentHTML('afterend', emptyState('◷','No appointments found','Try adjusting your search or filters.'));
+    return;
+  }
+  tbody.innerHTML = vis.map(b => `
+    <tr>
+      <td><strong>${b.name}</strong></td>
+      <td><a href="tel:${b.phone}" style="color:var(--text-light);text-decoration:none">${b.phone}</a></td>
+      <td style="font-size:11px;color:var(--text-light)">${b.selectedDoctor || '—'}</td>
+      <td>${b.service}</td>
+      <td>${b.date}</td>
+      <td style="color:var(--text-light)">${b.time}</td>
+      <td><span class="status-badge status-${b.status}">${b.status}</span></td>
+      <td>${actionButtons(b)}</td>
+    </tr>
+  `).join('');
+}
+
+function filterAppointments() { renderAdminAppointments(); }
+
+function actionButtons(b) {
+  const docId = b._docId || b.id;
+  let btns = '';
+  if (b.status === 'pending')   btns += `<button class="action-btn confirm" onclick="updateStatus('${docId}','confirmed')">✓ Confirm</button>`;
+  if (b.status === 'confirmed') btns += `<button class="action-btn" onclick="updateStatus('${docId}','completed')">Complete</button>`;
+  if (b.status !== 'cancelled' && b.status !== 'completed')
+    btns += `<button class="action-btn cancel" onclick="updateStatus('${docId}','cancelled')">✕</button>`;
+  return btns;
+}
+
+function updateStatus(id, status) {
+  // Optimistic local update for instant feedback
+  const local = bookings.find(x => x._docId === id || x._docId === String(id));
+  if (local) local.status = status;
+  if (bookingsRef && local && local._docId) {
+    bookingsRef.doc(local._docId).update({ status })
+      .then(() => showToast('Status updated: ' + status))
+      .catch(err => { console.warn('updateStatus error:', err); showToast('Update failed — check Firestore rules'); });
+  } else {
+    showToast('Status updated (offline mode)');
+  }
+  updateAdminStats();
+  renderAdminAppointments();
+  renderAdminPatients();
+}
+
+// ════════════════════════════════════════════════
+// PATIENTS TABLE
+// ════════════════════════════════════════════════
+function renderAdminPatients() {
+  const search = document.getElementById('patient-search')?.value || '';
+  const tbody  = document.getElementById('patients-table-body');
+  if (!tbody) return;
+  const stale = tbody.closest('.admin-card').querySelector('.empty-state');
+  if (stale) stale.remove();
+
+  const vis = visibleBookings();
+  const patientMap = {};
+  vis.forEach(b => {
+    if (!patientMap[b.phone]) {
+      patientMap[b.phone] = { name: b.name, phone: b.phone, visits: 0, lastDate: b.date || '', lastService: b.service };
+    }
+    patientMap[b.phone].visits++;
+    if ((b.date || '') >= patientMap[b.phone].lastDate) {
+      patientMap[b.phone].lastDate    = b.date || '';
+      patientMap[b.phone].lastService = b.service;
+    }
+  });
+
+  let patients = Object.values(patientMap);
+  if (search) {
+    patients = patients.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.phone.includes(search));
+  }
+
+  const countEl = document.getElementById('patients-count');
+  if (countEl) countEl.textContent = `${patients.length} patient${patients.length !== 1 ? 's' : ''}`;
+
+  if (!patients.length) {
+    tbody.innerHTML = '';
+    tbody.closest('table').insertAdjacentHTML('afterend',
+      search
+        ? emptyState('◎','No patients found','Try a different name or phone number.')
+        : emptyState('◎','No patients yet','Patient records will appear here once bookings are received.')
+    );
+    return;
+  }
+  tbody.innerHTML = patients.map(p => `
+    <tr>
+      <td><strong>${p.name}</strong></td>
+      <td><a href="tel:${p.phone}" style="color:var(--text-light);text-decoration:none">${p.phone}</a></td>
+      <td>${p.lastService}</td>
+      <td style="text-align:center"><span style="font-family:var(--font-display);font-size:16px;color:var(--gold)">${p.visits}</span></td>
+      <td style="color:var(--text-light)">${p.lastDate}</td>
+      <td style="color:var(--text-light);font-size:11px">—</td>
+    </tr>
+  `).join('');
+}
+
+function filterPatients() { renderAdminPatients(); }
+
+// ════════════════════════════════════════════════
+// SERVICES ADMIN
+// ════════════════════════════════════════════════
+function renderAdminServices() {
+  const g = document.getElementById('services-admin-grid');
+  if (!g) return;
+  if (!SERVICES.length) {
+    g.innerHTML = emptyState('✦','No services yet','Add your first service to get started.');
+    return;
+  }
+  g.innerHTML = SERVICES.map(s => `
+    <div class="service-manage-card">
+      <div class="service-manage-name">${s.name}</div>
+      <div class="service-manage-meta">${s.cat} · ${s.duration}</div>
+      <div class="service-manage-price">${s.price}</div>
+      <div class="service-manage-actions">
+        <button class="action-btn" onclick="editService('${s._docId}')">Edit</button>
+        <button class="action-btn cancel" onclick="deleteService('${s._docId}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function editService(docId) {
+  const s = SERVICES.find(x => x._docId === docId);
+  if (!s) return;
+  document.getElementById('edit-service-id').value       = docId;
+  document.getElementById('edit-service-name').value     = s.name     || '';
+  document.getElementById('edit-service-cat').value      = s.cat      || '';
+  document.getElementById('edit-service-duration').value = s.duration || '';
+  document.getElementById('edit-service-price').value    = s.price    || '';
+  // Restore edit-mode defaults in case addServiceAdmin changed them
+  document.querySelector('.edit-modal-title').textContent = 'Edit Service';
+  document.querySelector('.edit-modal-sub').textContent   = 'Update service details';
+  document.querySelector('.edit-modal-save').onclick      = saveEditService;
+  document.getElementById('edit-service-modal').classList.add('open');
+  document.getElementById('edit-service-name').focus();
+}
+
+function closeEditModal() {
+  document.getElementById('edit-service-modal').classList.remove('open');
+}
+
+function saveEditService() {
+  const docId    = document.getElementById('edit-service-id').value;
+  const s        = SERVICES.find(x => x._docId === docId);
+  const name     = document.getElementById('edit-service-name').value.trim();
+  const cat      = document.getElementById('edit-service-cat').value.trim();
+  const duration = document.getElementById('edit-service-duration').value.trim();
+  const price    = document.getElementById('edit-service-price').value.trim();
+  if (!name) { document.getElementById('edit-service-name').focus(); return; }
+  const updates = { name, cat, duration, price };
+  closeEditModal();
+  if (servicesRef && docId) {
+    servicesRef.doc(docId).update(updates)
+      .then(() => showToast('Service updated successfully'))
+      .catch(e => { console.error('Update error:', e); showToast('Update failed — check Firestore rules'); });
+  } else if (s) {
+    Object.assign(s, updates);
+    renderAdminServices();
+    populateServiceFilter();
+    showToast('Service updated (offline)');
+  }
+}
+
+const _editModal = document.getElementById('edit-service-modal');
+if (_editModal) _editModal.addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
+
+function deleteService(docId) {
+  if (confirm('Delete this service? This cannot be undone.')) {
+    if (servicesRef && docId) {
+      servicesRef.doc(docId).delete()
+        .then(() => showToast('Service deleted'))
+        .catch(e => { console.error('Delete error:', e); showToast('Delete failed — check Firestore rules'); });
+    } else {
+      const i = SERVICES.findIndex(s => s._docId === docId);
+      if (i >= 0) SERVICES.splice(i, 1);
+      renderAdminServices();
+      populateServiceFilter();
+      showToast('Service deleted (offline)');
+    }
+  }
+}
+
+function addServiceAdmin() {
+  document.getElementById('edit-service-id').value       = '';
+  document.getElementById('edit-service-name').value     = '';
+  document.getElementById('edit-service-cat').value      = '';
+  document.getElementById('edit-service-duration').value = '30 min';
+  document.getElementById('edit-service-price').value    = 'From SAR 800';
+  document.querySelector('.edit-modal-title').textContent = 'Add Service';
+  document.querySelector('.edit-modal-sub').textContent   = 'Enter new service details';
+  document.querySelector('.edit-modal-save').onclick = function() {
+    const name     = document.getElementById('edit-service-name').value.trim();
+    const cat      = document.getElementById('edit-service-cat').value.trim() || 'General';
+    const duration = document.getElementById('edit-service-duration').value.trim() || '30 min';
+    const price    = document.getElementById('edit-service-price').value.trim() || 'From SAR 800';
+    if (!name) { document.getElementById('edit-service-name').focus(); return; }
+    const newService = { cat, name, desc: '', duration, price, sortOrder: SERVICES.length + 1 };
+    const slug  = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const docId = slug + '-' + Date.now();
+    closeEditModal();
+    document.querySelector('.edit-modal-title').textContent = 'Edit Service';
+    document.querySelector('.edit-modal-sub').textContent   = 'Update service details';
+    document.querySelector('.edit-modal-save').onclick      = saveEditService;
+    if (servicesRef) {
+      servicesRef.doc(docId).set(newService)
+        .then(() => showToast('Service added successfully'))
+        .catch(e => { console.error('Add error:', e); showToast('Add failed — check Firestore rules'); });
+    } else {
+      SERVICES.push({ _docId: docId, id: docId, ...newService });
+      renderAdminServices();
+      populateServiceFilter();
+      showToast('Service added (offline)');
+    }
+  };
+  document.getElementById('edit-service-modal').classList.add('open');
+  document.getElementById('edit-service-name').focus();
+}
+
+// ════════════════════════════════════════════════
+// AVAILABILITY
+// ════════════════════════════════════════════════
+function renderAvailability() {
+  const g = document.getElementById('avail-grid');
+  if (!g) return;
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  g.innerHTML = days.map((day, dow) => {
+    const slots = AVAILABILITY[dow] || [];
+    return `
+      <div class="avail-row">
+        <div class="avail-day">${day}</div>
+        <div class="avail-slots">
+          ${slots.length
+            ? slots.map(t => `<span class="slot-tag">${t}</span>`).join('')
+            : `<span class="avail-closed">Closed</span>`
+          }
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════
+function populateServiceFilter() {
+  const sel = document.getElementById('appt-service-filter');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">All Services</option>' +
+    SERVICES.map(s => `<option value="${s.name}" ${s.name===current?'selected':''}>${s.name}</option>`).join('');
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:var(--charcoal);color:var(--cream);padding:14px 28px;font-size:12px;z-index:9999;text-align:center;letter-spacing:0.5px;box-shadow:0 8px 40px rgba(0,0,0,0.3);white-space:nowrap`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  buildDoctorButtons();
+});
+</script>
+</body>
+</html>

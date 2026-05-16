@@ -1,0 +1,3 @@
+# Pure static site — no build step required
+[build]
+  publish = "."
