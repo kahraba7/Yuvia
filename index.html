@@ -1153,10 +1153,6 @@
     .strip-divider { display: none; }
     .strip-item { padding: 24px 20px; border-bottom: 1px solid rgba(212,184,150,0.1); }
     .services-grid { grid-template-columns: 1fr; gap: 1px; }
-    .eid-inner { grid-template-columns: 1fr; gap: 48px; }
-    .eid-video-wrap { max-width: 100%; max-height: 480px; }
-    .eid-right { padding-bottom: 60px; }
-    .eid-accent-card { left: 0; bottom: 0; } #eid-offer { padding: 72px 24px 80px; }
     .ba-layout { grid-template-columns: 1fr; }
     .ba-gallery { grid-template-columns: 1fr; }
     .ba-gallery-item { min-height: 280px; }
@@ -1197,178 +1193,363 @@
 
   /* ── EID OFFER SECTION ── */
   #eid-offer {
-    background: linear-gradient(135deg, #1C1510 0%, #2A1E14 40%, #1C1510 100%);
-    padding: 100px 60px;
+    background: #1A1108;
     position: relative;
-    overflow: visible;
+    overflow: hidden;
+    padding: 0;
   }
+  /* Atmospheric background glow */
   #eid-offer::before {
     content: '';
     position: absolute;
     inset: 0;
-    overflow: hidden;
-    background: 
-      radial-gradient(ellipse 60% 50% at 80% 50%, rgba(139,94,60,0.18) 0%, transparent 70%),
-      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(200,149,106,0.08) 0%, transparent 70%);
+    background:
+      radial-gradient(ellipse 80% 60% at 70% 50%, rgba(139,94,60,0.14) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 80% at 10% 80%, rgba(200,149,106,0.06) 0%, transparent 60%);
     pointer-events: none;
+    z-index: 0;
   }
+  /* Top border line */
   #eid-offer::after {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(to right, transparent, rgba(200,149,106,0.4), transparent);
-  }
-  .eid-inner {
-    max-width: 1160px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 72px;
-    align-items: center;
-    position: relative;
+    background: linear-gradient(to right, transparent 0%, rgba(200,149,106,0.5) 50%, transparent 100%);
     z-index: 1;
   }
-  .eid-left {}
-  .eid-eyebrow {
-    font-size: 10px; letter-spacing: 5px; color: var(--champagne);
-    font-weight: 500; margin-bottom: 20px;
-    display: flex; align-items: center; gap: 14px;
+
+  /* ── DESKTOP: editorial side-by-side ── */
+  .eid-layout {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    grid-template-rows: 1fr;
+    min-height: 640px;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    gap: 0;
   }
-  .eid-eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--champagne); flex-shrink: 0; }
-  .eid-heading {
+
+  /* Left: text content */
+  .eid-content {
+    padding: 80px 64px 80px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+  .eid-content::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 40px; bottom: 40px;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(200,149,106,0.2), transparent);
+  }
+  .eid-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 9px;
+    letter-spacing: 4.5px;
+    color: var(--champagne);
+    font-weight: 600;
+    margin-bottom: 32px;
+    text-transform: uppercase;
+  }
+  .eid-tag::before {
+    content: '';
+    width: 28px; height: 1px;
+    background: var(--champagne);
+    flex-shrink: 0;
+  }
+  .eid-tag-dot {
+    width: 5px; height: 5px;
+    background: var(--champagne);
+    border-radius: 50%;
+    opacity: 0.5;
+    margin-left: 2px;
+    animation: eidPulse 2s ease-in-out infinite;
+  }
+  .eid-title-word {
     font-family: var(--font-display);
-    font-size: clamp(52px, 5.5vw, 80px);
+    font-size: clamp(44px, 4.5vw, 68px);
     font-weight: 300;
     line-height: 1.0;
     color: var(--cream);
-    margin-bottom: 8px;
+    display: block;
+    letter-spacing: 2px;
   }
-  .eid-heading em {
+  .eid-title-discount {
+    font-family: var(--font-display);
+    font-size: clamp(72px, 9vw, 124px);
+    font-weight: 300;
     font-style: italic;
     color: var(--champagne);
+    line-height: 0.9;
     display: block;
-    font-size: clamp(64px, 7vw, 104px);
-    line-height: 0.95;
+    margin-bottom: 4px;
+    letter-spacing: -1px;
   }
-  .eid-sub {
-    font-size: 11px; letter-spacing: 3px; color: rgba(250,247,244,0.5);
-    margin-top: 20px; margin-bottom: 36px; font-weight: 400;
-  }
-  .eid-desc {
-    font-size: 13px; line-height: 1.9; color: rgba(250,247,244,0.65);
-    margin-bottom: 40px; max-width: 420px;
-  }
-  .eid-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
-  .eid-btn-primary {
-    background: var(--gold); color: var(--cream);
-    padding: 14px 32px; font-size: 10px; letter-spacing: 2.5px;
-    font-weight: 600; border: none; cursor: pointer;
-    transition: all 0.3s; font-family: var(--font-body);
-    text-decoration: none; display: inline-block;
-  }
-  .eid-btn-primary:hover { background: var(--champagne); transform: translateY(-2px); }
-  .eid-btn-outline {
-    background: transparent; color: var(--cream);
-    padding: 14px 32px; font-size: 10px; letter-spacing: 2.5px;
-    font-weight: 600; border: 1px solid rgba(200,149,106,0.4);
-    cursor: pointer; transition: all 0.3s; font-family: var(--font-body);
-    text-decoration: none; display: inline-block;
-  }
-  .eid-btn-outline:hover { border-color: var(--champagne); color: var(--champagne); }
-  .eid-right {
-    position: relative;
-    /* Extra bottom padding to accommodate the accent card overflow */
-    padding-bottom: 40px;
-  }
-  .eid-video-wrap {
-    position: relative;
-    border-radius: 2px;
-    overflow: hidden;
-    /* Use a fixed width-based aspect ratio so it's truly 9:16 */
-    width: 100%;
-    aspect-ratio: 9/16;
-    max-height: 580px;
-    /* Constrain width so it doesn't get too tall on wide screens */
-    max-width: 326px;
-    margin: 0 auto;
-    box-shadow: 0 32px 72px rgba(0,0,0,0.55), 0 0 0 1px rgba(212,184,150,0.1);
-    background: var(--charcoal);
-  }
-  .eid-video-wrap video {
-    width: 100%; height: 100%;
-    object-fit: cover;
+  .eid-title-off {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 4vw, 60px);
+    font-weight: 300;
+    font-style: italic;
+    color: rgba(200,149,106,0.55);
+    line-height: 1;
     display: block;
   }
-  .eid-video-badge {
-    position: absolute;
-    top: 16px; right: 16px;
-    background: rgba(139,94,60,0.92);
-    backdrop-filter: blur(10px);
-    padding: 8px 16px;
-    font-size: 9px; letter-spacing: 3px; color: var(--cream);
+  .eid-scope {
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: rgba(250,247,244,0.35);
+    font-weight: 500;
+    text-transform: uppercase;
+    margin-top: 20px;
+    margin-bottom: 28px;
+  }
+  .eid-divider {
+    width: 40px;
+    height: 1px;
+    background: rgba(200,149,106,0.3);
+    margin-bottom: 24px;
+  }
+  .eid-body {
+    font-size: 13px;
+    line-height: 1.95;
+    color: rgba(250,247,244,0.55);
+    max-width: 380px;
+    margin-bottom: 40px;
+  }
+  .eid-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+  .eid-btn-book {
+    background: var(--gold);
+    color: var(--cream);
+    padding: 14px 36px;
+    font-size: 10px;
+    letter-spacing: 3px;
     font-weight: 600;
-    z-index: 2;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.25s ease-out, transform 0.15s ease-out;
   }
+  .eid-btn-book:hover { background: var(--champagne); transform: translateY(-1px); }
+  .eid-btn-book:active { transform: scale(0.97); }
+  .eid-btn-wa {
+    background: transparent;
+    color: rgba(250,247,244,0.6);
+    padding: 14px 28px;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    font-weight: 500;
+    border: 1px solid rgba(200,149,106,0.25);
+    cursor: pointer;
+    font-family: var(--font-body);
+    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-block;
+    transition: border-color 0.25s, color 0.25s;
+  }
+  .eid-btn-wa:hover { border-color: rgba(200,149,106,0.55); color: var(--champagne); }
+  .eid-urgency {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    color: rgba(200,149,106,0.5);
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  .eid-urgency-dot {
+    width: 6px; height: 6px;
+    background: var(--champagne);
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: eidPulse 1.8s ease-in-out infinite;
+  }
+
+  /* Right: video panel */
+  .eid-media {
+    position: relative;
+    background: #0E0A06;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+  }
+  .eid-media::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(26,17,8,0.6) 0%, transparent 40%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .eid-video-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 560px;
+  }
+  .eid-video-inner video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+  }
+  /* Overlay gradient on video */
+  .eid-video-inner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, rgba(14,10,6,0.7) 0%, transparent 35%),
+      linear-gradient(to bottom, rgba(14,10,6,0.2) 0%, transparent 20%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  /* Offer badge — top left of video */
+  .eid-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(139,94,60,0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 7px 16px;
+    font-size: 8px;
+    letter-spacing: 3.5px;
+    color: rgba(250,247,244,0.95);
+    font-weight: 600;
+    text-transform: uppercase;
+    z-index: 3;
+  }
+  /* Sound toggle */
   #eid-sound-btn {
     position: absolute;
-    bottom: 14px; left: 14px;
-    width: 34px; height: 34px;
+    bottom: 20px;
+    right: 20px;
+    width: 36px; height: 36px;
     border-radius: 50%;
-    background: rgba(13,11,9,0.72);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(212,184,150,0.25);
-    color: var(--cream);
+    background: rgba(13,11,9,0.65);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(212,184,150,0.2);
+    color: rgba(250,247,244,0.8);
     display: flex; align-items: center; justify-content: center;
     cursor: pointer;
     z-index: 3;
-    transition: background 0.2s ease-out, border-color 0.2s ease-out;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
     padding: 0;
+    flex-shrink: 0;
   }
   #eid-sound-btn:hover {
-    background: rgba(139,94,60,0.85);
-    border-color: rgba(212,184,150,0.5);
+    background: rgba(139,94,60,0.8);
+    border-color: rgba(212,184,150,0.4);
+    color: var(--cream);
   }
   #eid-sound-btn .icon-sound { display: none; }
   #eid-sound-btn.unmuted .icon-muted { display: none; }
   #eid-sound-btn.unmuted .icon-sound { display: block; }
-  .eid-accent-card {
+  /* Discount chip — bottom left of video */
+  .eid-chip {
     position: absolute;
-    /* Position relative to .eid-right, below and slightly left of video */
-    bottom: 0;
-    left: calc(50% - 163px - 16px); /* left edge of video minus overlap */
+    bottom: 20px;
+    left: 20px;
+    z-index: 3;
     background: var(--gold);
-    padding: 18px 24px;
+    padding: 14px 20px;
     text-align: center;
-    min-width: 110px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    z-index: 2;
+    min-width: 88px;
   }
-  .eid-accent-num {
+  .eid-chip-num {
     font-family: var(--font-display);
-    font-size: 38px; font-weight: 300; color: var(--cream);
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--cream);
     line-height: 1;
+    display: block;
   }
-  .eid-accent-label {
-    font-size: 8px; letter-spacing: 3px; color: rgba(250,247,244,0.75);
-    margin-top: 4px; font-weight: 500;
+  .eid-chip-label {
+    font-size: 7px;
+    letter-spacing: 2.5px;
+    color: rgba(250,247,244,0.7);
+    display: block;
+    margin-top: 3px;
+    font-weight: 600;
+    text-transform: uppercase;
   }
-  .eid-limited {
-    margin-top: 24px;
-    display: flex; align-items: center; gap: 10px;
-    font-size: 10px; letter-spacing: 2px; color: rgba(200,149,106,0.7);
-    font-weight: 500;
-  }
-  .eid-limited::before {
-    content: '';
-    display: inline-block; width: 8px; height: 8px;
-    background: var(--champagne); border-radius: 50%;
-    animation: eidPulse 1.5s ease-in-out infinite;
-    flex-shrink: 0;
-  }
+
   @keyframes eidPulse {
     0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.7); }
+    50% { opacity: 0.4; transform: scale(0.75); }
   }
+
+  /* ── TABLET (900px – 1100px): shrink video column ── */
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .eid-layout { grid-template-columns: 1fr 340px; }
+    .eid-content { padding: 64px 48px 64px 40px; }
+  }
+
+  /* ── MOBILE (≤ 900px): full vertical stack ── */
+  @media (max-width: 900px) {
+    #eid-offer { padding: 0; }
+    .eid-layout {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+      min-height: unset;
+    }
+    /* On mobile: video on TOP, text below */
+    .eid-media {
+      order: -1;
+      min-height: unset;
+    }
+    .eid-video-inner {
+      position: relative;
+      /* 9:16 aspect ratio for phone video */
+      aspect-ratio: 9 / 16;
+      min-height: unset;
+      max-height: 75vw; /* cap so it's not full-screen tall */
+    }
+    .eid-video-inner video {
+      position: absolute;
+    }
+    .eid-content {
+      padding: 48px 24px 56px;
+      order: 1;
+    }
+    .eid-content::after { display: none; }
+    .eid-body { max-width: 100%; }
+    .eid-title-discount { font-size: clamp(68px, 18vw, 96px); }
+    .eid-chip { bottom: 16px; left: 16px; }
+    .eid-badge { top: 16px; left: 16px; }
+    #eid-sound-btn { bottom: 16px; right: 16px; }
+  }
+
+  /* ── SMALL MOBILE (≤ 480px) ── */
+  @media (max-width: 480px) {
+    .eid-video-inner {
+      max-height: 85vw;
+    }
+    .eid-title-discount { font-size: clamp(60px, 20vw, 80px); }
+    .eid-actions { gap: 10px; }
+    .eid-btn-book, .eid-btn-wa { padding: 13px 24px; font-size: 9px; }
+  }
+
   /* ── REDUCED MOTION (COREN: non-negotiable) ── */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -1571,43 +1752,61 @@
 
     <!-- EID OFFER CAMPAIGN SECTION -->
     <section id="eid-offer">
-      <div class="eid-inner">
-        <div class="eid-left">
-          <div class="eid-eyebrow">LIMITED TIME OFFER · EID CAMPAIGN</div>
-          <div class="eid-heading">
-            EID
-            <em>20% OFF</em>
+      <div class="eid-layout">
+
+        <!-- LEFT: Campaign text -->
+        <div class="eid-content">
+          <div class="eid-tag">
+            Limited Time Offer · Eid Campaign
+            <span class="eid-tag-dot"></span>
           </div>
-          <div class="eid-sub">ON ALL SERVICES · YUVIA CLINIC</div>
-          <p class="eid-desc">
-            Celebrate the beauty of Eid with a special gift to yourself. 
-            Yuvia Clinic is offering 20% OFF on all aesthetic treatments — 
-            from Skin Boosters and OxyGeneo facials to RF Treatments and Body Sculpting. 
-            This is a limited-time offer. Book your consultation today.
+
+          <div class="eid-heading-block">
+            <span class="eid-title-word">EID</span>
+            <span class="eid-title-discount">20%</span>
+            <span class="eid-title-off">OFF</span>
+          </div>
+
+          <div class="eid-scope">On All Services · Yuvia Clinic</div>
+          <div class="eid-divider"></div>
+
+          <p class="eid-body">
+            Celebrate the beauty of Eid with a special gift to yourself.
+            Yuvia Clinic is offering 20% OFF on all aesthetic treatments —
+            from Skin Boosters and OxyGeneo facials to RF Treatments and
+            Body Sculpting. Limited time only.
           </p>
-          <div class="eid-ctas">
-            <button class="eid-btn-primary" onclick="openBooking()">Book Now</button>
-            <a class="eid-btn-outline" href="https://wa.me/201101003121" target="_blank">WhatsApp Inquiry</a>
+
+          <div class="eid-actions">
+            <button class="eid-btn-book" onclick="openBooking()">Book Now</button>
+            <a class="eid-btn-wa" href="https://wa.me/201101003121" target="_blank">WhatsApp Inquiry</a>
           </div>
-          <div class="eid-limited">LIMITED TIME ONLY — BOOK TODAY</div>
+
+          <div class="eid-urgency">
+            <span class="eid-urgency-dot"></span>
+            Limited Time Only — Book Today
+          </div>
         </div>
-        <div class="eid-right">
-          <div class="eid-video-wrap">
+
+        <!-- RIGHT: Video panel -->
+        <div class="eid-media">
+          <div class="eid-video-inner">
             <video autoplay muted loop playsinline poster="eid_offer_main.jpg" id="eid-video">
               <source src="eid_video.mp4" type="video/mp4">
-              <img src="eid_offer_main.jpg" alt="Yuvia Clinic Eid Offer" style="width:100%;height:100%;object-fit:cover;">
+              <img src="eid_offer_main.jpg" alt="Yuvia Clinic Eid Offer 20% Off" style="width:100%;height:100%;object-fit:cover;display:block;">
             </video>
-            <button id="eid-sound-btn" aria-label="Toggle sound" title="Tap to enable audio">
-              <svg class="icon-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-              <svg class="icon-sound" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-            </button>
-            <div class="eid-video-badge">EID OFFERS</div>
           </div>
-          <div class="eid-accent-card">
-            <div class="eid-accent-num">20%</div>
-            <div class="eid-accent-label">OFF ALL SERVICES</div>
+          <div class="eid-badge">Eid Offers</div>
+          <button id="eid-sound-btn" aria-label="Toggle sound" title="Tap to enable audio">
+            <svg class="icon-muted" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+            <svg class="icon-sound" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </button>
+          <div class="eid-chip">
+            <span class="eid-chip-num">20%</span>
+            <span class="eid-chip-label">Off All Services</span>
           </div>
         </div>
+
       </div>
     </section>
 
