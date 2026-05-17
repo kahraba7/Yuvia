@@ -935,7 +935,7 @@ try {
     servicesRef  = db.collection('services');
 
     // Bookings real-time listener
-    bookingsRef.orderBy('createdAt', 'asc').onSnapshot(snapshot => {
+    bookingsRef.onSnapshot(snapshot => {
       bookings = snapshot.docs.map(doc => {
         const d = doc.data();
         return {
@@ -953,6 +953,10 @@ try {
           // keep originals too
           ...d,
         };
+      }).sort((a, b) => {
+        const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : new Date(a.createdAt || 0).getTime();
+        const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : new Date(b.createdAt || 0).getTime();
+        return ta - tb;
       });
       firestoreReady = true;
       const dash = document.getElementById('admin-dashboard');
@@ -1109,13 +1113,15 @@ function showAdminPanel(id, el) {
   if (el) el.classList.add('active');
   const titles = {
     'overview': 'Overview', 'appointments': 'Appointments',
-    'patients': 'Patients', 'services-admin': 'Services', 'availability': 'Availability'
+    'patients': 'Patients', 'services-admin': 'Services', 'availability': 'Availability',
+    'integrations': 'Integrations'
   };
   document.getElementById('admin-page-label').textContent = titles[id] || id;
   if (id === 'appointments') renderAdminAppointments();
   if (id === 'patients') renderAdminPatients();
   if (id === 'services-admin') renderAdminServices();
   if (id === 'availability') renderAvailability();
+  if (id === 'integrations') renderIntegrations();
 }
 
 // ════════════════════════════════════════════════

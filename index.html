@@ -12,7 +12,7 @@
 <!-- Shared Firebase config — edit firebase-config.js only -->
 <script src="firebase-config.js"></script>
 <!-- EmailJS SDK (client-only, loaded async — never blocks page) -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" async></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <!-- Clinic content data — edit clinic-data.js only -->
 <script src="clinic-data.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1942,23 +1942,23 @@
       </div>
       <div class="sidebar-nav">
         <div class="sidebar-section">Main</div>
-        <div class="sidebar-item active" onclick="showAdminPanel('overview')">
+        <div class="sidebar-item active" onclick="showAdminPanel('overview', this)">
           <span class="sidebar-icon">◈</span> <span id="sb-overview">Overview</span>
         </div>
-        <div class="sidebar-item" onclick="showAdminPanel('appointments')">
+        <div class="sidebar-item" onclick="showAdminPanel('appointments', this)">
           <span class="sidebar-icon">◷</span> <span id="sb-appts">Appointments</span>
         </div>
-        <div class="sidebar-item" onclick="showAdminPanel('patients')">
+        <div class="sidebar-item" onclick="showAdminPanel('patients', this)">
           <span class="sidebar-icon">◎</span> <span id="sb-patients">Patients</span>
         </div>
         <div class="sidebar-section">Manage</div>
-        <div class="sidebar-item" onclick="showAdminPanel('services-admin')">
+        <div class="sidebar-item" onclick="showAdminPanel('services-admin', this)">
           <span class="sidebar-icon">✦</span> <span id="sb-services">Services</span>
         </div>
-        <div class="sidebar-item" onclick="showAdminPanel('availability')">
+        <div class="sidebar-item" onclick="showAdminPanel('availability', this)">
           <span class="sidebar-icon">◻</span> <span id="sb-avail">Availability</span>
         </div>
-        <div class="sidebar-item" onclick="showAdminPanel('integrations')">
+        <div class="sidebar-item" onclick="showAdminPanel('integrations', this)">
           <span class="sidebar-icon">⇌</span> <span>Integrations</span>
         </div>
       </div>
@@ -2386,8 +2386,15 @@ try {
 
     // Real-time listener: keeps bookings[] in sync with Firestore.
     // Also refreshes time slots if booking modal is open on step 3.
-    bookingsRef.orderBy('createdAt', 'asc').onSnapshot(snapshot => {
-      bookings = snapshot.docs.map(doc => ({ _docId: doc.id, ...doc.data() }));
+    bookingsRef.onSnapshot(snapshot => {
+      bookings = snapshot.docs
+        .map(doc => ({ _docId: doc.id, ...doc.data() }))
+        .sort((a, b) => {
+          // Handle both Firestore Timestamp and ISO string createdAt
+          const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : new Date(a.createdAt || 0).getTime();
+          const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : new Date(b.createdAt || 0).getTime();
+          return ta - tb;
+        });
       try {
         const modal = document.getElementById('booking-modal');
         const step3 = document.getElementById('step-3');
@@ -3152,7 +3159,7 @@ function showToast(msg, type) {
 function adminLogin() {
   const user = document.getElementById('login-user').value;
   const pass = document.getElementById('login-pass').value;
-  if (pass === '7777') {
+  if (pass === (CLINIC.adminPass || 'admin123')) {
     document.getElementById('admin-login').style.display = 'none';
     document.getElementById('admin-dashboard').style.display = 'grid';
     document.getElementById('admin-date-display').textContent = new Date().toLocaleDateString('en-US', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
@@ -3172,17 +3179,20 @@ function adminLogout() {
   document.getElementById('login-error').style.display = 'none';
 }
 
-function showAdminPanel(id) {
+function showAdminPanel(id, el) {
   document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(`panel-${id}`).classList.add('active');
+  const panel = document.getElementById(`panel-${id}`);
+  if (panel) panel.classList.add('active');
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  const titles = { overview:'Overview', appointments:'Appointments', patients:'Patients', 'services-admin':'Services', availability:'Availability' };
-  document.getElementById('admin-page-label').textContent = titles[id] || id;
+  if (el) el.classList.add('active');
+  const titles = { overview:'Overview', appointments:'Appointments', patients:'Patients', 'services-admin':'Services', availability:'Availability', integrations:'Integrations' };
+  const lbl = document.getElementById('admin-page-label');
+  if (lbl) lbl.textContent = titles[id] || id;
   if (id === 'appointments') renderAdminAppointments();
   if (id === 'patients') renderAdminPatients();
   if (id === 'services-admin') renderAdminServices();
   if (id === 'availability') renderAvailability();
+  if (id === 'integrations') renderIntegrationsAdmin();
 }
 
 function updateAdminStats() {
