@@ -1156,10 +1156,7 @@
     .eid-inner { grid-template-columns: 1fr; gap: 48px; }
     #eid-offer { padding: 64px 20px 80px; }
     .eid-video-wrap { max-height: 420px; aspect-ratio: 16/9; }
-    .eid-accent-card { position: relative; bottom: auto; left: auto; margin-top: 20px; display: inline-flex; gap: 12px; align-items: center; padding: 16px 24px; }
-    .eid-accent-num { font-size: 32px; }
-    .eid-heading { font-size: clamp(40px, 12vw, 64px); }
-    .eid-heading em { font-size: clamp(48px, 14vw, 80px); }
+    .eid-accent-card { position: relative; bottom: auto; left: auto; margin-top: 32px; display: inline-block; }
     .ba-layout { grid-template-columns: 1fr; }
     .ba-gallery { grid-template-columns: 1fr; }
     .ba-gallery-item { min-height: 280px; }
@@ -1189,7 +1186,6 @@
   }
   @media (max-width: 480px) {
     .ba-layout { grid-template-columns: 1fr; }
-    .eid-video-wrap { aspect-ratio: 4/5; max-height: 360px; }
     .booking-steps .step { font-size: 8px; letter-spacing: 0.5px; padding-bottom: 10px; }
     .hero-img-wrap { display: none; }
     .hero-desc { max-width: 100%; }
@@ -1227,7 +1223,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 80px;
-    align-items: start;
+    align-items: center;
     position: relative;
     z-index: 1;
   }
@@ -1280,23 +1276,17 @@
   .eid-btn-outline:hover { border-color: var(--champagne); color: var(--champagne); }
   .eid-right {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
   }
   .eid-video-wrap {
     position: relative;
     border-radius: 2px;
     overflow: hidden;
-    width: 100%;
     aspect-ratio: 9/16;
-    max-height: 520px;
-    box-shadow: 0 32px 64px rgba(0,0,0,0.5);
+    max-height: 560px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
     background: var(--charcoal);
   }
   .eid-video-wrap video {
-    position: absolute;
-    inset: 0;
     width: 100%; height: 100%;
     object-fit: cover;
     display: block;
@@ -1310,13 +1300,34 @@
     font-size: 9px; letter-spacing: 3px; color: var(--cream);
     font-weight: 600;
   }
+  #eid-sound-btn {
+    position: absolute;
+    bottom: 16px; left: 16px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(13,11,9,0.7);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(212,184,150,0.25);
+    color: var(--cream);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    transition: background 0.2s ease-out, border-color 0.2s ease-out;
+    padding: 0;
+  }
+  #eid-sound-btn:hover {
+    background: rgba(139,94,60,0.85);
+    border-color: rgba(212,184,150,0.5);
+  }
+  #eid-sound-btn .icon-sound { display: none; }
+  #eid-sound-btn.unmuted .icon-muted { display: none; }
+  #eid-sound-btn.unmuted .icon-sound { display: block; }
   .eid-accent-card {
     position: absolute;
-    bottom: 20px; left: -20px;
+    bottom: -24px; left: -24px;
     background: var(--gold);
     padding: 20px 28px;
     text-align: center;
-    z-index: 2;
   }
   .eid-accent-num {
     font-family: var(--font-display);
@@ -1567,11 +1578,14 @@
         </div>
         <div class="eid-right">
           <div class="eid-video-wrap">
-            <video autoplay loop playsinline poster="eid_offer_main.jpg" id="eid-video" style="cursor:pointer;" onclick="this.muted=!this.muted;document.getElementById('eid-sound-icon').textContent=this.muted?'🔇':'🔊'">
+            <video autoplay muted loop playsinline poster="eid_offer_main.jpg" id="eid-video">
               <source src="eid_video.mp4" type="video/mp4">
               <img src="eid_offer_main.jpg" alt="Yuvia Clinic Eid Offer" style="width:100%;height:100%;object-fit:cover;">
             </video>
-            <div id="eid-sound-icon" style="position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,0.55);color:#fff;font-size:16px;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;backdrop-filter:blur(6px);transition:background 0.2s;" onclick="var v=document.getElementById('eid-video');v.muted=!v.muted;this.textContent=v.muted?'🔇':'🔊';" title="Toggle sound">🔊</div>
+            <button id="eid-sound-btn" onclick="var v=document.getElementById('eid-video');v.muted=!v.muted;this.classList.toggle('unmuted');" title="Toggle sound" aria-label="Toggle sound">
+              <svg class="icon-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+              <svg class="icon-sound" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            </button>
             <div class="eid-video-badge">EID OFFERS</div>
           </div>
           <div class="eid-accent-card">
@@ -3073,21 +3087,9 @@ function init() {
   renderServiceSelect();
   renderContactServices();
 
-  // Eid video: unmute on first user interaction (browser autoplay policy)
-  const eidVideo = document.getElementById('eid-video');
-  if (eidVideo) {
-    const unmute = () => {
-      eidVideo.muted = false;
-      const icon = document.getElementById('eid-sound-icon');
-      if (icon) icon.textContent = '🔊';
-      document.removeEventListener('click', unmute);
-      document.removeEventListener('keydown', unmute);
-      document.removeEventListener('touchstart', unmute);
-    };
-    document.addEventListener('click', unmute, { once: true, passive: true });
-    document.addEventListener('keydown', unmute, { once: true, passive: true });
-    document.addEventListener('touchstart', unmute, { once: true, passive: true });
-  }
+  // Eid video sound: button shows muted state; clicking unmutes.
+  // Autoplay with sound is blocked by browsers until user interacts — this is intentional.
+  // The sound button lets users enable audio on their first interaction.
 
   // Image load handling — add .loaded class when each image loads
   document.querySelectorAll('img').forEach(img => {
