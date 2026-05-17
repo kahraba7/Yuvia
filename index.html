@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Yuvia Clinic — Aesthetics, Nutrition & Wellness in Cairo, Egypt. Holistic beauty treatments by specialist doctors. Book your consultation today.">
+<meta name="theme-color" content="#1C1510">
 <title>Yuvia Clinic — Aesthetics · Nutrition · Wellness</title>
 <!-- Firebase SDK (v10 modular via CDN compat build) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -42,7 +44,7 @@
     background: var(--cream);
     color: var(--text-dark);
     overflow-x: hidden;
-    font-size: 14px;
+    font-size: 15px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -57,7 +59,7 @@
     background: none; border: 1px solid rgba(212,184,150,0.3);
     color: rgba(250,248,245,0.6); padding: 4px 12px;
     font-family: var(--font-body); font-size: 10px; letter-spacing: 2px;
-    cursor: pointer; transition: all 0.3s;
+    cursor: pointer; transition: background-color 0.2s ease-out, color 0.2s ease-out, border-color 0.2s ease-out;
   }
   .lang-btn:first-child { border-right: none; }
   .lang-btn:hover { color: var(--champagne); border-color: rgba(212,184,150,0.6); }
@@ -71,7 +73,7 @@
     position: fixed; top: 0; left: 0; right: 0; z-index: 999;
     padding: 22px 60px;
     display: flex; align-items: center; justify-content: space-between;
-    transition: all 0.4s;
+    transition: background-color 0.3s ease-out, padding 0.3s ease-out, backdrop-filter 0.3s ease-out, border-color 0.3s ease-out;
     background: transparent;
   }
   nav.scrolled {
@@ -102,9 +104,10 @@
     background: var(--gold); color: var(--dark);
     padding: 10px 24px; font-size: 10px; letter-spacing: 2.5px;
     font-weight: 600; border: none; cursor: pointer;
-    transition: all 0.3s; font-family: var(--font-body);
+    transition: background-color 0.2s ease-out, color 0.2s ease-out; font-family: var(--font-body);
   }
   .nav-cta:hover { background: var(--deep-gold); color: var(--cream); }
+  .nav-cta:active { transform: scale(0.97); }
 
   /* ── HERO ── */
   #hero {
@@ -178,7 +181,7 @@
     animation: heroFadeIn 1.2s ease both;
   }
   @keyframes heroFadeIn {
-    from { opacity: 0; transform: translateY(30px); }
+    from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
   }
   /* Hero text elements - visible with new clean image */
@@ -190,7 +193,6 @@
     font-size: 10px; letter-spacing: 5px; color: var(--gold);
     font-weight: 500; margin-bottom: 24px;
     display: flex; align-items: center; gap: 14px;
-    text-shadow: 0 1px 8px rgba(13,11,9,0.5);
   }
   .hero-eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--gold); flex-shrink: 0; }
   .hero-title {
@@ -198,7 +200,6 @@
     font-size: clamp(54px, 6vw, 82px);
     font-weight: 300; line-height: 1.03;
     color: var(--cream); margin-bottom: 16px;
-    text-shadow: 0 2px 20px rgba(13,11,9,0.4);
   }
   .hero-title em { font-style: italic; color: var(--champagne); }
   .hero-subtitle {
@@ -221,17 +222,18 @@
     background: var(--gold); color: var(--dark);
     padding: 15px 40px; font-size: 11px; letter-spacing: 3px;
     font-weight: 600; border: none; cursor: pointer;
-    transition: all 0.3s; font-family: var(--font-body);
+    transition: background-color 0.2s ease-out, transform 0.1s ease-out, color 0.2s ease-out; font-family: var(--font-body);
     text-transform: uppercase;
     position: relative; z-index: 4;
     display: inline-block;
   }
-  .btn-primary:hover { background: var(--champagne); transform: translateY(-2px); }
+  .btn-primary:hover { background: var(--champagne); }
+  .btn-primary:active { transform: scale(0.97); }
   .btn-outline {
     background: transparent; color: rgba(250,248,245,0.75);
     padding: 15px 36px; font-size: 11px; letter-spacing: 3px;
     font-weight: 400; border: 1px solid rgba(250,248,245,0.2);
-    cursor: pointer; transition: all 0.3s; font-family: var(--font-body);
+    cursor: pointer; transition: border-color 0.2s ease-out, color 0.2s ease-out; font-family: var(--font-body);
     text-transform: uppercase;
     position: relative; z-index: 4;
   }
@@ -251,17 +253,17 @@
     transform: translateX(-50%);
     display: flex; flex-direction: column; align-items: center; gap: 8px;
     color: rgba(250,248,245,0.25); font-size: 9px; letter-spacing: 3px;
-    animation: bounce 2s infinite;
+    animation: scrollFade 3s ease-in-out infinite;
     z-index: 3;
   }
   .scroll-hint::after {
     content: ''; width: 1px; height: 44px;
     background: linear-gradient(to bottom, rgba(250,248,245,0.25), transparent);
   }
-  @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(8px)} }
+  @keyframes scrollFade { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
 
   /* ── SECTIONS COMMON ── */
-  section { padding: 100px 60px; }
+  section { padding: 96px 60px; }
   .section-label {
     font-size: 9px; letter-spacing: 5px; color: var(--gold);
     font-weight: 500; text-transform: uppercase; margin-bottom: 16px;
@@ -346,9 +348,9 @@
   }
   .doctor-card {
     position: relative; overflow: hidden; cursor: pointer;
-    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    transition: opacity 0.3s ease-out;
   }
-  .doctor-card:hover { transform: translateY(-6px); }
+  .doctor-card:hover { opacity: 0.92; }
   .doctor-card-img-wrap {
     aspect-ratio: 3/4; overflow: hidden; position: relative;
   }
@@ -412,7 +414,7 @@
   .service-card {
     background: var(--cream); padding: 48px 40px;
     position: relative; overflow: hidden;
-    cursor: pointer; transition: all 0.4s;
+    cursor: pointer; transition: box-shadow 0.35s cubic-bezier(0.4,0,0.2,1), border-color 0.2s ease-out;
     border: 1px solid var(--light-gray);
   }
   .service-card::before {
@@ -421,7 +423,7 @@
     transition: width 0.4s;
   }
   .service-card:hover::before { width: 100%; }
-  .service-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.08); }
+  .service-card:hover { box-shadow: 0 16px 48px rgba(0,0,0,0.09); }
   .service-num {
     font-family: var(--font-display); font-size: 48px;
     color: var(--light-gray); font-weight: 300;
@@ -429,7 +431,7 @@
   }
   .service-cat { font-size: 9px; letter-spacing: 3px; color: var(--gold); margin-bottom: 20px; text-transform: uppercase; }
   .service-name { font-family: var(--font-display); font-size: 26px; font-weight: 400; color: var(--text-dark); margin-bottom: 12px; line-height: 1.2; }
-  .service-desc { font-size: 12px; color: var(--text-light); line-height: 1.9; margin-bottom: 28px; }
+  .service-desc { font-size: 13px; color: var(--text-light); line-height: 1.9; margin-bottom: 28px; }
   .service-meta { display: flex; gap: 20px; align-items: center; font-size: 10px; color: var(--warm-gray); letter-spacing: 1px; }
   .service-duration { color: var(--gold); }
   .service-book {
@@ -589,7 +591,7 @@
     position: relative; animation: modalIn 0.4s ease;
   }
   @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.96) translateY(20px); }
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
   }
   .modal-close {
@@ -816,7 +818,7 @@
   .footer-link:hover { color: var(--gold); }
   .footer-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: rgba(250,248,245,0.2); letter-spacing: 1px; }
   .footer-social { display: flex; gap: 16px; }
-  .social-link { width: 36px; height: 36px; border: 1px solid rgba(212,184,150,0.15); display: flex; align-items: center; justify-content: center; color: rgba(250,248,245,0.3); text-decoration: none; font-size: 14px; transition: all 0.3s; cursor: pointer; }
+  .social-link { width: 36px; height: 36px; border: 1px solid rgba(212,184,150,0.15); display: flex; align-items: center; justify-content: center; color: rgba(250,248,245,0.3); text-decoration: none; font-size: 14px; transition: border-color 0.2s ease-out, color 0.2s ease-out; cursor: pointer; }
   .social-link:hover { border-color: var(--gold); color: var(--gold); }
 
   /* ── FLOATING WHATSAPP ── */
@@ -824,11 +826,12 @@
     position: fixed; bottom: 30px; right: 30px; z-index: 500;
     width: 56px; height: 56px; background: #25D366;
     border-radius: 50%; display: flex; align-items: center;
-    justify-content: center; box-shadow: 0 4px 20px rgba(37,211,102,0.4);
-    cursor: pointer; transition: all 0.3s; text-decoration: none;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.35);
+    cursor: pointer; transition: opacity 0.2s ease-out; text-decoration: none;
     font-size: 24px;
   }
-  .whatsapp-float:hover { transform: scale(1.1); box-shadow: 0 6px 30px rgba(37,211,102,0.5); }
+  .whatsapp-float:hover { opacity: 0.88; }
 
   /* ── HAMBURGER MENU ── */
   .hamburger {
@@ -1077,9 +1080,7 @@
   /* B&A gallery images always visible — bypass lazy-load fade */
   .ba-gallery-item img { opacity: 1 !important; }
 
-  /* ── PREMIUM SERVICE CARD ── */
-  .service-card { transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
-  .service-card:hover { box-shadow: 0 24px 64px rgba(0,0,0,0.1); }
+  .service-card { transition: box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease-out; }
 
   /* ── SMOOTH REVEAL ── */
   .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.65s cubic-bezier(0.4,0,0.2,1), transform 0.65s cubic-bezier(0.4,0,0.2,1); }
@@ -1123,8 +1124,8 @@
     .nav-links { display: none; }
     .lang-switch { display: none; }
     .hamburger { display: flex; }
-    section { padding: 70px 20px; }
-    .hero-content { padding: 0 20px 70px; max-width: 100%; margin-top: 0; }
+    section { padding: 64px 20px; }
+    .hero-content { padding: 0 20px 64px; max-width: 100%; margin-top: 0; }
     .hero-trust { display: none; }
     .hero-img-wrap { display: none; }
     body.rtl .hero-img-wrap { display: none; }
@@ -1242,15 +1243,15 @@
     background: var(--gold); color: var(--cream);
     padding: 14px 32px; font-size: 10px; letter-spacing: 2.5px;
     font-weight: 600; border: none; cursor: pointer;
-    transition: all 0.3s; font-family: var(--font-body);
+    transition: background-color 0.2s ease-out; font-family: var(--font-body);
     text-decoration: none; display: inline-block;
   }
-  .eid-btn-primary:hover { background: var(--champagne); transform: translateY(-2px); }
+  .eid-btn-primary:hover { background: var(--champagne); }
   .eid-btn-outline {
     background: transparent; color: var(--cream);
     padding: 14px 32px; font-size: 10px; letter-spacing: 2.5px;
     font-weight: 600; border: 1px solid rgba(200,149,106,0.4);
-    cursor: pointer; transition: all 0.3s; font-family: var(--font-body);
+    cursor: pointer; transition: border-color 0.2s ease-out, color 0.2s ease-out; font-family: var(--font-body);
     text-decoration: none; display: inline-block;
   }
   .eid-btn-outline:hover { border-color: var(--champagne); color: var(--champagne); }
@@ -1312,11 +1313,20 @@
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.5; transform: scale(0.7); }
   }
-  @media (max-width: 900px) {
-    .eid-inner { grid-template-columns: 1fr; gap: 50px; }
-    .eid-video-wrap { max-height: 420px; }
-    .eid-accent-card { bottom: -16px; left: -8px; padding: 14px 20px; }
-    #eid-offer { padding: 70px 24px; }
+  /* ── REDUCED MOTION (COREN: non-negotiable) ── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* ── FOCUS RINGS (COREN: never remove) ── */
+  :focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
   }
 </style>
 </head>
@@ -1378,7 +1388,7 @@
     <!-- Hero -->
     <section id="hero">
       <div class="hero-bg"></div>
-      <img class="hero-video-bg" src="Hero.JPEG" alt="Yuvia Clinic" loading="eager" fetchpriority="high">
+      <img class="hero-video-bg" src="Hero.JPEG" alt="Yuvia Clinic — Aesthetics, Nutrition & Wellness" loading="eager" fetchpriority="high">
       <div class="hero-texture"></div>
       <div class="hero-accent"></div>
       <div class="hero-line"></div>
@@ -1391,7 +1401,7 @@
         <h1 class="hero-title" id="hero-title">Glow From the<br><em>Inside Out</em></h1>
         <div class="hero-subtitle" id="hero-sub">A holistic approach to timeless beauty and vitality</div>
         <div class="hero-divider"></div>
-        <p class="hero-desc" id="hero-desc">A holistic approach to timeless beauty and vitality. Aesthetics · Nutrition · Wellness — where science meets artistry. Glow from the inside out.</p>
+        <p class="hero-desc" id="hero-desc">Aesthetics, nutrition, and wellness — working together where science meets artistry. Every treatment is designed for you.</p>
         <div class="hero-actions">
           <button class="btn-primary" onclick="openBooking()" id="hero-cta1">Book Consultation</button>
           <button class="btn-outline" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})" id="hero-cta2">Explore Services</button>
