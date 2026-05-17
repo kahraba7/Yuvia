@@ -1846,6 +1846,10 @@
           <a href="https://wa.me/201101003121" class="whatsapp-btn" id="wa-btn-link" target="_blank">
             <span>✉</span> <span id="wa-btn-text">Message on WhatsApp</span>
           </a>
+          <!-- Map embed — src set by JS from CLINIC.mapEmbedUrl -->
+          <div style="margin-top:28px;overflow:hidden;border:1px solid rgba(212,184,150,0.15)">
+            <iframe id="clinic-map-iframe" src="" width="100%" height="200" style="border:0;display:block" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Clinic Location"></iframe>
+          </div>
         </div>
         <div class="contact-form">
           <div class="form-row">
@@ -1953,6 +1957,9 @@
         </div>
         <div class="sidebar-item" onclick="showAdminPanel('availability')">
           <span class="sidebar-icon">◻</span> <span id="sb-avail">Availability</span>
+        </div>
+        <div class="sidebar-item" onclick="showAdminPanel('integrations')">
+          <span class="sidebar-icon">⇌</span> <span>Integrations</span>
         </div>
       </div>
       <div class="sidebar-footer">
@@ -2079,6 +2086,22 @@
           </div>
           <div class="admin-card-body" style="padding:28px">
             <div id="avail-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── INTEGRATIONS PANEL (inline admin) ── -->
+      <div id="panel-integrations" class="admin-panel">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title">Integrations</div>
+            <button class="add-service-btn" onclick="addIntegrationAdmin()">+ Add Integration</button>
+          </div>
+          <div class="admin-card-body" style="padding:28px">
+            <p style="font-size:12px;color:var(--text-light);margin-bottom:20px;line-height:1.6">
+              Webhook integrations receive a POST with booking data after every successful booking. Failures are silent.
+            </p>
+            <div id="integrations-list-admin"></div>
           </div>
         </div>
       </div>
@@ -2397,6 +2420,12 @@ try {
         try { renderContactServices(); } catch(e) {}
       }
     }, err => console.warn('Services listener error:', err));
+
+    // Integrations listener — keeps CLINIC.integrations in sync so webhooks fire correctly
+    db.collection('integrations').onSnapshot(snapshot => {
+      CLINIC.integrations = snapshot.docs.map(doc => ({ _docId: doc.id, ...doc.data() }));
+      try { renderIntegrationsAdmin(); } catch(e) {}
+    }, err => console.warn('Integrations listener error (non-blocking):', err));
 
   } else {
     console.warn('Firebase not available — running in offline mode');
@@ -2939,6 +2968,11 @@ function confirmBooking() {
 
   // ── Atomic write: show success ONLY after Firestore confirms ──
   const onSuccess = (savedBooking) => {
+    // FIX: reset button state BEFORE replacing innerHTML (btn ref becomes detached after innerHTML swap)
+    btn.classList.remove('btn-loading');
+    btn.disabled = false;
+    _bookingSubmitting = false;
+
     // Fire EmailJS — never blocks booking flow
     _sendBookingEmail(savedBooking);
     // Fire enabled integrations — never blocks booking flow
@@ -2969,7 +3003,6 @@ function confirmBooking() {
         </div>
       `;
     }
-    _bookingSubmitting = false;
   };
 
   if (bookingsRef) {
@@ -2999,7 +3032,8 @@ function _sendBookingEmail(b) {
     const cfg = CLINIC.emailjs;
     if (!cfg || !cfg.publicKey) return;
     if (typeof emailjs === 'undefined') return; // SDK not loaded yet
-    emailjs.init(cfg.publicKey);
+    // Init once — emailjs.init is idempotent but calling per-send can cause duplicate sends
+    if (!window._emailjsInited) { emailjs.init(cfg.publicKey); window._emailjsInited = true; }
     emailjs.send(cfg.serviceId, cfg.templateId, {
       to_email:   cfg.email,
       patient:    b.name || b.patientName,
@@ -3025,6 +3059,75 @@ function _fireIntegrations(bookingData) {
       }).catch(e => console.warn(`Integration "${integration.name}" failed (non-blocking):`, e));
     });
   } catch(e) { console.warn('Integrations fire error (non-blocking):', e); }
+}
+
+// ── Integrations admin panel (inline) ──
+function renderIntegrationsAdmin() {
+  const list = document.getElementById('integrations-list-admin');
+  if (!list) return;
+  const items = CLINIC.integrations || [];
+  if (!items.length) {
+    list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-light);font-size:12px;letter-spacing:1px">No integrations added yet.</div>`;
+    return;
+  }
+  list.innerHTML = items.map(item => `
+    <div style="display:flex;align-items:center;gap:14px;padding:16px;border:1px solid var(--light-gray);margin-bottom:10px;background:var(--warm-white)">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--text-dark);margin-bottom:3px">${_escH(item.name)}</div>
+        <div style="font-size:11px;color:var(--text-light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_escH(item.url)}</div>
+        <div style="font-size:10px;color:var(--text-light);margin-top:2px;text-transform:uppercase;letter-spacing:1px">${_escH(item.type||'webhook')}</div>
+      </div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-mid);cursor:pointer;white-space:nowrap">
+        <input type="checkbox" ${item.enabled?'checked':''} onchange="toggleIntegrationAdmin('${item._docId}', this.checked)">
+        ${item.enabled ? 'Enabled' : 'Disabled'}
+      </label>
+      <button onclick="deleteIntegrationAdmin('${item._docId}')" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:16px;padding:4px 8px;line-height:1" title="Delete">×</button>
+    </div>
+  `).join('');
+}
+
+function addIntegrationAdmin() {
+  const name = prompt('Integration name (e.g. Zapier, Make, CRM):');
+  if (!name || !name.trim()) return;
+  const url = prompt('Webhook URL (POST endpoint):');
+  if (!url || !url.trim()) return;
+  const type = prompt('Type (webhook / crm / other):') || 'webhook';
+  const entry = { name: name.trim(), url: url.trim(), type: type.trim(), enabled: true, createdAt: new Date().toISOString() };
+  if (db) {
+    db.collection('integrations').add(entry)
+      .then(() => showToast('Integration added'))
+      .catch(e => { console.warn('Add integration error:', e); showToast('Error saving integration', 'warn'); });
+  } else {
+    CLINIC.integrations = CLINIC.integrations || [];
+    CLINIC.integrations.push({ ...entry, _docId: 'local_' + Date.now() });
+    renderIntegrationsAdmin();
+  }
+}
+
+function toggleIntegrationAdmin(docId, enabled) {
+  if (db) {
+    db.collection('integrations').doc(docId).update({ enabled })
+      .catch(e => console.warn('Toggle integration error:', e));
+  } else {
+    const item = (CLINIC.integrations || []).find(i => i._docId === docId);
+    if (item) { item.enabled = enabled; renderIntegrationsAdmin(); }
+  }
+}
+
+function deleteIntegrationAdmin(docId) {
+  if (!confirm('Delete this integration?')) return;
+  if (db) {
+    db.collection('integrations').doc(docId).delete()
+      .then(() => showToast('Integration deleted'))
+      .catch(e => console.warn('Delete integration error:', e));
+  } else {
+    CLINIC.integrations = (CLINIC.integrations || []).filter(i => i._docId !== docId);
+    renderIntegrationsAdmin();
+  }
+}
+
+function _escH(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function buildWhatsAppMessage(b) {
@@ -3363,6 +3466,10 @@ function init() {
   renderFAQ();
   renderServiceSelect();
   renderContactServices();
+
+  // ── Map embed ──
+  const mapIframe = document.getElementById('clinic-map-iframe');
+  if (mapIframe && CLINIC.mapEmbedUrl) mapIframe.src = CLINIC.mapEmbedUrl;
 
   // ── Eid Video Audio ──
   // Browsers block autoplay with sound. Strategy:
