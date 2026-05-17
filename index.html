@@ -1153,10 +1153,10 @@
     .strip-divider { display: none; }
     .strip-item { padding: 24px 20px; border-bottom: 1px solid rgba(212,184,150,0.1); }
     .services-grid { grid-template-columns: 1fr; gap: 1px; }
-    .eid-inner { grid-template-columns: 1fr; gap: 48px; }
-    #eid-offer { padding: 64px 20px 80px; }
-    .eid-video-wrap { max-height: 420px; aspect-ratio: 16/9; }
-    .eid-accent-card { position: relative; bottom: auto; left: auto; margin-top: 32px; display: inline-block; }
+    .eid-inner { grid-template-columns: 1fr; gap: 50px; }
+    .eid-video-wrap { max-height: 420px; }
+    .eid-accent-card { bottom: -16px; left: -8px; padding: 14px 20px; }
+    #eid-offer { padding: 70px 24px; }
     .ba-layout { grid-template-columns: 1fr; }
     .ba-gallery { grid-template-columns: 1fr; }
     .ba-gallery-item { min-height: 280px; }
@@ -1262,15 +1262,15 @@
     background: var(--gold); color: var(--cream);
     padding: 14px 32px; font-size: 10px; letter-spacing: 2.5px;
     font-weight: 600; border: none; cursor: pointer;
-    transition: background-color 0.2s ease-out; font-family: var(--font-body);
+    transition: all 0.3s; font-family: var(--font-body);
     text-decoration: none; display: inline-block;
   }
-  .eid-btn-primary:hover { background: var(--champagne); }
+  .eid-btn-primary:hover { background: var(--champagne); transform: translateY(-2px); }
   .eid-btn-outline {
     background: transparent; color: var(--cream);
     padding: 14px 32px; font-size: 10px; letter-spacing: 2.5px;
     font-weight: 600; border: 1px solid rgba(200,149,106,0.4);
-    cursor: pointer; transition: border-color 0.2s ease-out, color 0.2s ease-out; font-family: var(--font-body);
+    cursor: pointer; transition: all 0.3s; font-family: var(--font-body);
     text-decoration: none; display: inline-block;
   }
   .eid-btn-outline:hover { border-color: var(--champagne); color: var(--champagne); }
@@ -1582,7 +1582,7 @@
               <source src="eid_video.mp4" type="video/mp4">
               <img src="eid_offer_main.jpg" alt="Yuvia Clinic Eid Offer" style="width:100%;height:100%;object-fit:cover;">
             </video>
-            <button id="eid-sound-btn" onclick="var v=document.getElementById('eid-video');v.muted=!v.muted;this.classList.toggle('unmuted');" title="Toggle sound" aria-label="Toggle sound">
+            <button id="eid-sound-btn" aria-label="Toggle sound" title="Tap to enable audio">
               <svg class="icon-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
               <svg class="icon-sound" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
             </button>
@@ -3087,9 +3087,30 @@ function init() {
   renderServiceSelect();
   renderContactServices();
 
-  // Eid video sound: button shows muted state; clicking unmutes.
-  // Autoplay with sound is blocked by browsers until user interacts — this is intentional.
-  // The sound button lets users enable audio on their first interaction.
+  // ── Eid Video Audio ──
+  // Browsers block autoplay with sound. Strategy:
+  // 1. Video autoplays muted (browser-permitted).
+  // 2. Sound button unmutes on first user click (satisfies browser interaction requirement).
+  // 3. On click we also attempt to play the video in case it was paused by browser policy.
+  (function() {
+    var btn = document.getElementById('eid-sound-btn');
+    var vid = document.getElementById('eid-video');
+    if (!btn || !vid) return;
+    btn.addEventListener('click', function() {
+      if (vid.muted) {
+        vid.muted = false;
+        vid.volume = 1;
+        // Resume play if browser had paused it
+        if (vid.paused) {
+          vid.play().catch(function() { vid.muted = true; btn.classList.remove('unmuted'); });
+        }
+        btn.classList.add('unmuted');
+      } else {
+        vid.muted = true;
+        btn.classList.remove('unmuted');
+      }
+    }, { passive: true });
+  })();
 
   // Image load handling — add .loaded class when each image loads
   document.querySelectorAll('img').forEach(img => {
