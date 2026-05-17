@@ -11,6 +11,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <!-- Shared Firebase config — edit firebase-config.js only -->
 <script src="firebase-config.js"></script>
+<!-- EmailJS SDK (client-only, loaded async — never blocks page) -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" async></script>
 <!-- Clinic content data — edit clinic-data.js only -->
 <script src="clinic-data.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2879,15 +2881,30 @@ function highlightRequired(containerId, msg) {
   showToast(msg, 'warn');
 }
 
+// ── Booking submit guard — prevents double-clicks ──
+let _bookingSubmitting = false;
+
 function confirmBooking() {
   const btn = document.getElementById('s5-confirm');
   if (!btn) return;
+
+  // ── Double-submit guard ──────────────────────────
+  if (_bookingSubmitting) return;
+  _bookingSubmitting = true;
+
   // Loading state
   btn.classList.add('btn-loading');
   btn.textContent = currentLang==='ar'?'جارٍ الحجز...':'Processing...';
   btn.disabled = true;
 
-  // Save to Firestore
+  const resetBtn = () => {
+    btn.classList.remove('btn-loading');
+    btn.disabled = false;
+    btn.textContent = currentLang==='ar'?'تأكيد الحجز':'Confirm Booking';
+    _bookingSubmitting = false;
+  };
+
+  // Build booking payload
   const newBooking = {
     patientName: booking.name,
     phone: booking.phone,
@@ -2904,20 +2921,28 @@ function confirmBooking() {
       ? firebase.firestore.FieldValue.serverTimestamp()
       : new Date().toISOString()
   };
-  if (bookingsRef) {
-    bookingsRef.add(newBooking)
-      .then(() => console.log('Booking saved to Firestore'))
-      .catch(err => {
-        console.warn('Save booking error:', err);
-        // Fallback: push to local array so UI is consistent even if Firestore fails
-        bookings.push({ ...newBooking, _docId: 'local_' + Date.now(), createdAt: new Date().toISOString() });
-      });
-  } else {
-    // Offline fallback — keep in memory for this session
-    bookings.push({ ...newBooking, _docId: 'local_' + Date.now(), createdAt: new Date().toISOString() });
+
+  // ── Duplicate booking check ──────────────────────
+  const isDuplicate = bookings.some(b =>
+    b.phone === booking.phone &&
+    b.date  === booking.date  &&
+    b.time  === booking.time  &&
+    b.status !== 'cancelled'
+  );
+  if (isDuplicate) {
+    showToast(currentLang==='ar'
+      ? 'هذا الموعد محجوز بالفعل لهذا الرقم. يرجى اختيار وقت آخر.'
+      : 'This slot is already booked for your number. Please choose a different time.', 'warn');
+    resetBtn();
+    return;
   }
 
-  (async () => {
+  // ── Atomic write: show success ONLY after Firestore confirms ──
+  const onSuccess = (savedBooking) => {
+    // Fire EmailJS — never blocks booking flow
+    _sendBookingEmail(savedBooking);
+    // Fire enabled integrations — never blocks booking flow
+    _fireIntegrations(savedBooking);
 
     // Build prefilled WhatsApp URL
     const waMsg = buildWhatsAppMessage(booking);
@@ -2925,26 +2950,81 @@ function confirmBooking() {
 
     // Show success panel inside modal
     const modalBody = document.querySelector('.modal-body');
-    modalBody.innerHTML = `
-      <div class="booking-success">
-        <div class="booking-success-icon">✦</div>
-        <div class="booking-success-title">${currentLang==='ar'?'تم الحجز!':'Booking Received!'}</div>
-        <div class="booking-success-msg">
-          ${currentLang==='ar'
-            ? `شكراً <strong>${booking.name}</strong>! تم استلام طلب حجزك لـ <strong>${booking.service.nameAr||booking.service.name}</strong> بتاريخ <strong>${booking.date}</strong> الساعة <strong>${booking.time}</strong>.<br><br>سيتم التواصل معك على <strong>${booking.phone}</strong> لتأكيد الموعد.`
-            : `Thank you <strong>${booking.name}</strong>! Your booking for <strong>${booking.service.name}</strong> on <strong>${booking.date}</strong> at <strong>${booking.time}</strong> has been received.<br><br>We'll confirm your appointment at <strong>${booking.phone}</strong> shortly.`}
+    if (modalBody) {
+      modalBody.innerHTML = `
+        <div class="booking-success">
+          <div class="booking-success-icon">✦</div>
+          <div class="booking-success-title">${currentLang==='ar'?'تم الحجز!':'Booking Received!'}</div>
+          <div class="booking-success-msg">
+            ${currentLang==='ar'
+              ? `شكراً <strong>${booking.name}</strong>! تم استلام طلب حجزك لـ <strong>${booking.service.nameAr||booking.service.name}</strong> بتاريخ <strong>${booking.date}</strong> الساعة <strong>${booking.time}</strong>.<br><br>سيتم التواصل معك على <strong>${booking.phone}</strong> لتأكيد الموعد.`
+              : `Thank you <strong>${booking.name}</strong>! Your booking for <strong>${booking.service.name}</strong> on <strong>${booking.date}</strong> at <strong>${booking.time}</strong> has been received.<br><br>We'll confirm your appointment at <strong>${booking.phone}</strong> shortly.`}
+          </div>
+          <a href="${waUrl}" class="booking-success-wa" target="_blank">
+            💬 ${currentLang==='ar'?'تأكيد عبر واتساب':'Confirm via WhatsApp'}
+          </a>
+          <button class="btn-step secondary" style="width:100%;justify-content:center" onclick="closeBooking()">
+            ${currentLang==='ar'?'إغلاق':'Close'}
+          </button>
         </div>
-        <a href="${waUrl}" class="booking-success-wa" target="_blank">
-          💬 ${currentLang==='ar'?'تأكيد عبر واتساب':'Confirm via WhatsApp'}
-        </a>
-        <button class="btn-step secondary" style="width:100%;justify-content:center" onclick="closeBooking()">
-          ${currentLang==='ar'?'إغلاق':'Close'}
-        </button>
-      </div>
-    `;
-    btn.classList.remove('btn-loading');
-    btn.disabled = false;
-  })();
+      `;
+    }
+    _bookingSubmitting = false;
+  };
+
+  if (bookingsRef) {
+    bookingsRef.add(newBooking)
+      .then(docRef => {
+        console.log('Booking saved to Firestore:', docRef.id);
+        onSuccess({ ...newBooking, _docId: docRef.id });
+      })
+      .catch(err => {
+        console.warn('Save booking error:', err);
+        // Fallback: push to local array, still show success
+        const localBooking = { ...newBooking, _docId: 'local_' + Date.now(), createdAt: new Date().toISOString() };
+        bookings.push(localBooking);
+        onSuccess(localBooking);
+      });
+  } else {
+    // Offline fallback
+    const localBooking = { ...newBooking, _docId: 'local_' + Date.now(), createdAt: new Date().toISOString() };
+    bookings.push(localBooking);
+    onSuccess(localBooking);
+  }
+}
+
+// ── EmailJS — fires after booking write, never blocks ──
+function _sendBookingEmail(b) {
+  try {
+    const cfg = CLINIC.emailjs;
+    if (!cfg || !cfg.publicKey) return;
+    if (typeof emailjs === 'undefined') return; // SDK not loaded yet
+    emailjs.init(cfg.publicKey);
+    emailjs.send(cfg.serviceId, cfg.templateId, {
+      to_email:   cfg.email,
+      patient:    b.name || b.patientName,
+      phone:      b.phone,
+      service:    b.service || b.selectedService,
+      date:       b.date,
+      time:       b.time,
+      doctor:     b.selectedDoctor || '',
+      notes:      b.notes || '',
+    }).catch(e => console.warn('EmailJS send error (non-blocking):', e));
+  } catch(e) { console.warn('EmailJS error (non-blocking):', e); }
+}
+
+// ── Integrations webhooks — fires after booking write, never blocks ──
+function _fireIntegrations(bookingData) {
+  try {
+    const list = (CLINIC.integrations || []).filter(i => i.enabled && i.url);
+    list.forEach(integration => {
+      fetch(integration.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'yuvia-clinic', integration: integration.name, booking: bookingData })
+      }).catch(e => console.warn(`Integration "${integration.name}" failed (non-blocking):`, e));
+    });
+  } catch(e) { console.warn('Integrations fire error (non-blocking):', e); }
 }
 
 function buildWhatsAppMessage(b) {

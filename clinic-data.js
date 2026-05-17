@@ -157,3 +157,22 @@ const SERVICES_DEFAULT = [
   { id: 'dermapen-pdrn',  cat: 'Skin Science',    catAr: 'علم البشرة',       name: 'Dermapen Salmon PDRN',     nameAr: 'ديرمابن سالمون PDRN',   img: 'ba_hydrafacial.jpg',        desc: 'Advanced microneedling with Salmon PDRN for skin regeneration, pore minimizing, and remarkably smooth skin.', descAr: 'حقن إبر متقدمة مع PDRN سالمون لتجديد البشرة وتصغير المسام.', duration: '45–60 min', durationMin: 60, price: 'Contact Clinic' },
   { id: 'bbb',            cat: 'Body Sculpting',  catAr: 'نحت الجسم',        name: 'Brazilian Butt Re-shaping', nameAr: 'إعادة تشكيل البرازيلي', img: 'ba_hydrafacial.jpg',        desc: 'Non-surgical body sculpting: fat stimulation & distribution, cellulite reduction, body contouring.', descAr: 'نحت الجسم غير الجراحي: تحفيز وتوزيع الدهون، تقليل السيلوليت، تنحيف الجسم.', duration: '45–60 min', durationMin: 60, price: 'Contact Clinic' },
 ];
+
+// ════════════════════════════════════════════════
+// GLOBAL CONFIGS — Patched
+// ════════════════════════════════════════════════
+
+// EmailJS config (client-only, never blocks booking)
+CLINIC.emailjs = {
+  publicKey:  "ZzVWMdKQA0IfDjS-A",
+  serviceId:  "service_a6oqx5x",
+  templateId: "template_sipljjg",
+  email:      "coren.egypt@gmail.com"
+};
+
+// Google Maps embed URL
+CLINIC.mapEmbedUrl = "https://www.google.com/maps?q=30.0014107,31.5319758&z=16&output=embed";
+
+// Integrations (admin-managed webhooks called after successful booking)
+// Persisted to Firestore integrations collection; this is the runtime array.
+CLINIC.integrations = [];

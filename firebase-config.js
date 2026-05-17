@@ -1,13 +1,13 @@
 // ════════════════════════════════════════════════
-// PERFECTA CLINICS — Firebase Configuration
+// YUVIA CLINIC — Firebase Configuration
 // ════════════════════════════════════════════════
 // CDN-compatible config — works directly in browser, no build step required
 
 const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyDXyck3FWYKr57642jH-hLoYqkd_HWJw5o",
-  authDomain:        "rejov-clinic.firebaseapp.com",
-  projectId:         "rejov-clinic",
-  storageBucket:     "rejov-clinic.firebasestorage.app",
-  messagingSenderId: "577875293930",
-  appId:             "1:577875293930:web:4d57e735269b58d6f2c993"
+  apiKey:            "AIzaSyB37v8-TGOOOQLeqLyOcNBF9a7mXnKMfI",
+  authDomain:        "yuvia-1f97e.firebaseapp.com",
+  projectId:         "yuvia-1f97e",
+  storageBucket:     "yuvia-1f97e.firebasestorage.app",
+  messagingSenderId: "366544645549",
+  appId:             "1:366544645549:web:6d0981143061a44777c524"
 };
